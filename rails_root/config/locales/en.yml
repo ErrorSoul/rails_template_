@@ -1,0 +1,6 @@
+en:
+  hello: "Hello world"
+  email: "Email"
+  password: "Password"
+  remember_me: "Remember me"
+  sign_out: 'Sign out'
