@@ -1,0 +1,41 @@
+.row.header-table
+  .col-md-12
+    h1.display-4
+      = obj.model_name
+
+      = link_to "Create #{obj.name.downcase}", path_new, class: "btn btn-primary float-right"
+
+.row
+  .col-md-12
+    table.g_table.table.table-hover.table-responsive
+      thead.thead-inverse
+        tr
+          - obj.table_headers.each do |name|
+            th= name
+          th Actions
+        tbody
+          - obj.pool.each do |elem|
+            tr
+              - obj.column_headers.each do |name|
+                - if name == 'country'
+                  td= elem.public_send(name).name
+                - elsif name == 'order'
+                  td= elem.public_send(name).try(:id)
+                - elsif name == "customer"
+                  td= elem.public_send(name).try(:full_name)
+                - elsif name == "product_lists"
+                  td= elem.public_send(name).try(:size)
+                - elsif name == 'role'
+                  td
+                    span class=user_badge(elem.public_send(name))
+                      = elem.public_send(name)
+                - else
+                  td= elem.public_send(name)
+              td
+                .btn-group.btn-group-sm role="group"
+                  - if can?(:read, elem)
+                    = link_to "Show", url_for([:admin, elem]), class: "btn btn-secondary"
+                  - if can?(:update, elem)
+                    = link_to "Edit", url_for([:edit, :admin,  elem]), class: "btn btn-secondary"
+                  - if can?(:destroy, elem)
+                    = link_to "Destroy", url_for([:admin, elem]), method: :delete,  class: "btn btn-secondary"

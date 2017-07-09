@@ -38,6 +38,7 @@ copy_file   'Procfile'
 directory 'app/views'
 directory 'app/helpers'
 directory 'app/controllers'
+directory 'app/components'
 # copy_file 'app/controllers/admin/base_controller.rb'
 # copy_file 'app/controllers/authentication/sessions_controller.rb'
 # copy_file 'app/controllers/mains_controller.rb'
@@ -92,7 +93,9 @@ after_bundle do
   generate(:migration, "AddNameToUsers first_name:string last_name:string role:string category_id:integer")
   remove_file('db/seeds.rb')
   copy_file('db/seeds.rb')
+  copy_file('app/models/ability.rb')
   rake  'db:migrate'
+  rake  'db:seed'
   rails_command('webpacker:install')
   copy_file 'app/javascript/packs/hello.scss'
   copy_file 'app/javascript/packs/hello_first.jsx'

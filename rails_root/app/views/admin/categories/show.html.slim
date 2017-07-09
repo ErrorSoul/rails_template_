@@ -1,0 +1,15 @@
+.row.justify-content-md-center
+  .col-sm-6
+    .card
+      .card-block
+        h3.card-title= @obj.elem.name
+        .card-text
+          p
+            = fa_icon "envelope-o 1x", text:  @obj.elem.name
+      .card-footer.text-center
+        .btn-group.btn-group-sm role="group"
+          = link_to "Back", request.referrer, class: "btn btn-secondary"
+          - if can?(:update, @obj.elem)
+            = link_to "Edit", url_for([:edit, :admin, @obj.elem]), class: "btn btn-secondary"
+          - if can?(:update, @obj.elem)
+            = link_to "Destroy", url_for([:admin, @obj.elem]), method: :delete,  class: "btn btn-secondary"

@@ -1,0 +1,2 @@
+= form_for(@user, url: admin_user_path(@user),  html: {class: "form form-horizontal" }) do |f|
+  = render partial: 'user_form', locals: { f: f }
