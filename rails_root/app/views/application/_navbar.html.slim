@@ -1,0 +1,27 @@
+nav.navbar.navbar-toggleable-md.bg-faded.navbar-inverse.bg-inverse style="margin-bottom: 60px"
+  button.navbar-toggler.navbar-toggler-right aria-controls="navbarNavDropdown" aria-expanded="false" aria-label=("Toggle navigation") data-target="#navbarNavDropdown" data-toggle="collapse" type="button"
+    span.navbar-toggler-icon
+  a.navbar-brand href="/"  Order form
+  #navbarNavDropdown.collapse.navbar-collapse
+
+    ul.navbar-nav
+      li.nav-item
+        = link_to "Orders", "orders_path", class: "nav-link"
+
+      li.nav-item
+        = link_to "Users", "users_path", class: "nav-link"
+      li.nav-item
+         = link_to "Customers", "customers_path", class: "nav-link"
+
+      li.nav-item.dropdown.float-right
+        a#navbarDropdownMenuLink.nav-link.dropdown-toggle aria-expanded="false" aria-haspopup="true" data-toggle="dropdown"
+          | Create
+        .dropdown-menu aria-labelledby="navbarDropdownMenuLink"
+          = link_to("Create order + customer", "new_order_path", class: 'dropdown-item')
+          = link_to("Create order", "new_coupon_path", class: 'dropdown-item')
+          = link_to "Create customer", "new_customer_path", class: "dropdown-item"
+
+  .col-6
+    ul.nav.navbar-nav.float-right
+      li.nav-item
+        li = link_to t(:sign_out), destroy_user_session_path, method: :delete, class: 'nav-link'
