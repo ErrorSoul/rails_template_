@@ -13,3 +13,11 @@ user = User.create(
   email: 'admin@admin.ru',
   password: 'password'
 )
+
+stations = YAML.load_file('config/locales/stations.yml')
+
+Station.transaction do
+  stations.each do |station|
+    Station.create! name: station
+  end
+end

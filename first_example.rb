@@ -82,6 +82,7 @@ after_bundle do
   generate('devise User')
   remove_file 'config/locales/en.yml'
   copy_file 'config/locales/en.yml'
+  copy_file'config/locales/stations.yml'
 
 
 
@@ -90,6 +91,7 @@ after_bundle do
   #generate('react:install')
   rake  'db:create'
   generate('model category name')
+  generate('model station name')
   generate(:migration, "AddNameToUsers first_name:string last_name:string role:string category_id:integer")
   remove_file('db/seeds.rb')
   copy_file('db/seeds.rb')

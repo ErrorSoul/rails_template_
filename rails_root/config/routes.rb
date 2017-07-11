@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     resources :dashboards
     resources :users
     resources :categories
+    resources :stations
   end
 
  end
