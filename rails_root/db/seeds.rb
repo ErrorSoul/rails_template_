@@ -14,7 +14,7 @@ user = User.create(
   password: 'password'
 )
 
-stations = YAML.load_file('config/locales/stations.yml')
+stations = YAML.load_file('config/stations.yml')
 
 Station.transaction do
   stations.each do |station|

@@ -82,7 +82,7 @@ after_bundle do
   generate('devise User')
   remove_file 'config/locales/en.yml'
   copy_file 'config/locales/en.yml'
-  copy_file'config/locales/stations.yml'
+  copy_file 'config/stations.yml'
 
 
 
@@ -98,6 +98,7 @@ after_bundle do
   copy_file('app/models/ability.rb')
   rake  'db:migrate'
   rake  'db:seed'
+  generate('kaminari:views bootstrap4 -e slim')
   rails_command('webpacker:install')
   copy_file 'app/javascript/packs/hello.scss'
   copy_file 'app/javascript/packs/hello_first.jsx'
