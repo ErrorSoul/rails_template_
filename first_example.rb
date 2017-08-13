@@ -75,36 +75,12 @@ EOF
 end
 
 after_bundle do
+ rake  'db:create'
+ rake  'db:migrate'
 
-  run 'spring stop'
-  generate('devise:install')
-
-  generate('devise User')
-  remove_file 'config/locales/en.yml'
-  copy_file 'config/locales/en.yml'
-  copy_file 'config/stations.yml'
-
-
-
-
-  gsub_file 'config/routes.rb', "devise_for :users", "devise_for :users, path_names: {sign_in: 'login'}, controllers: { sessions: 'authentication/sessions' }"
-  #generate('react:install')
-  rake  'db:create'
-  generate('model category name')
-  generate('model station name')
-  generate(:migration, "AddNameToUsers first_name:string last_name:string role:string category_id:integer")
-  remove_file('db/seeds.rb')
-  copy_file('db/seeds.rb')
-  copy_file('app/models/ability.rb')
-  rake  'db:migrate'
-  rake  'db:seed'
   generate('kaminari:views bootstrap4 -e slim')
   rails_command('webpacker:install')
-  copy_file 'app/javascript/packs/hello.scss'
-  copy_file 'app/javascript/packs/hello_first.jsx'
   rails_command('webpacker:install:react')
-  append_to_file 'app/javascript/packs/application.js', %Q[import 'packs/hello_first']
-  run 'yarn add antd'
 
   git :init
   git add: "."
