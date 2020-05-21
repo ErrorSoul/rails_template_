@@ -21,6 +21,8 @@ application do
     ]
 end
 
+directory 'app/components'
+
 # remove_file 'app/views/application.html.erb'
 # remove_file 'app/assets/javascripts/application.js'
 # remove_file 'config/routes.rb'
@@ -50,7 +52,7 @@ end
 # directory 'app/views'
 # directory 'app/helpers'
 # directory 'app/controllers'
-# directory 'app/components'
+
 # copy_file 'app/controllers/admin/base_controller.rb'
 # copy_file 'app/controllers/authentication/sessions_controller.rb'
 # copy_file 'app/controllers/mains_controller.rb'
@@ -123,9 +125,50 @@ end
 #   git commit: "-a -m 'Initial commit'"
 # end
 after_bundle do
-
   run 'spring stop'
-  run 'rails generate rspec:install'
+  rails_command 'generate rspec:install'
+  append_to_file '.rspec', '--format d'
+  rails_command 'g annotate:install'
+
+  gsub_file 'spec/rails_helper.rb',
+    "# Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }",
+    "Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }"
+
+  inject_into_file 'spec/rails_helper.rb', after: "require 'rspec/rails'" do <<-'RUBY'
+    require 'database_cleaner/active_record'
+  RUBY
+  end
+
+  inject_into_file 'spec/rails_helper.rb', after: "RSpec.configure do |config|\n" do <<-'RUBY'.indent(2)
+    config.include FactoryBot::Syntax::Methods
+    config.include Requests::JsonHelpers, type: :request
+
+    # Database Cleaner
+    config.before(:suite) do
+      DatabaseCleaner.strategy = :transaction
+      DatabaseCleaner.clean_with(:truncation)
+    end
+
+    config.around(:each) do |example|
+      DatabaseCleaner.cleaning do
+        example.run
+      end
+    end
+
+    # Shoulda matcher
+
+   Shoulda::Matchers.configure do |config|
+    config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+    end
+   end
+
+  RUBY
+  end
+
+  directory 'spec/support'
+  copy_file('spec/support/request_helpers.rb')
 
   git :init
   git add: "."
