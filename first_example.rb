@@ -8,6 +8,8 @@ run "dropdb #{app_name}_development --if-exists"
 run "dropdb #{app_name}_test --if-exists"
 remove_file "Gemfile"
 copy_file('Gemfile')
+remove_file 'config/database.yml'
+template 'config/database.erb', 'config/database.yml'
 
 application do
   %Q[
@@ -123,7 +125,7 @@ end
 after_bundle do
 
   run 'spring stop'
-
+  run 'rails generate rspec:install'
 
   git :init
   git add: "."
