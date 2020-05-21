@@ -4,19 +4,19 @@ def source_paths
 [File.join(File.expand_path(File.dirname(__FILE__)),'rails_root')]
 end
 
-run "dropdb #{app_name}_development"
-run "dropdb #{app_name}_test"
+run "dropdb #{app_name}_development --if-exists"
+run "dropdb #{app_name}_test --if-exists"
 remove_file "Gemfile"
 copy_file('Gemfile')
 
 application do
-  %Q(
-  config.i18n.default_locale = :ru
-  config.generators do |g|
-    g.template_engine :slim
-  end
-  config.generators.system_tests = :rspec
-  )
+  %Q[
+     config.i18n.default_locale = :ru
+     config.generators do |g|
+       g.template_engine :slim
+     end
+     config.generators.system_tests = :rspec
+    ]
 end
 
 # remove_file 'app/views/application.html.erb'
@@ -123,6 +123,7 @@ end
 after_bundle do
 
   run 'spring stop'
+
 
   git :init
   git add: "."
