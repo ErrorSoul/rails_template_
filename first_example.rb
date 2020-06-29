@@ -23,6 +23,9 @@ end
 
 directory 'app/components'
 
+remove_file 'config/routes.rb'
+copy_file   'config/routes.rb'
+
 # remove_file 'app/views/application.html.erb'
 # remove_file 'app/assets/javascripts/application.js'
 # remove_file 'config/routes.rb'
@@ -170,6 +173,11 @@ after_bundle do
   directory 'spec/support'
   copy_file('spec/support/request_helpers.rb')
 
+
+  # migration
+  generate('model Superuser login password')
+
+  ##########
   git :init
   git add: "."
   git commit: "-a -m 'Initial commit'"
