@@ -172,7 +172,8 @@ after_bundle do
 
   directory 'spec/support'
   copy_file('spec/support/request_helpers.rb')
-
+  rails_command('webpacker:install')
+  rails_command('webpacker:install:react')
 
   # migration
   generate('model Superuser login password')
