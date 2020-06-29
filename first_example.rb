@@ -137,12 +137,12 @@ after_bundle do
     "# Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }",
     "Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }"
 
-  inject_into_file 'spec/rails_helper.rb', after: "require 'rspec/rails'" do <<-'RUBY'
-    require 'database_cleaner/active_record'
+  inject_into_file 'spec/rails_helper.rb', after: "require 'rspec/rails'\n" do <<~'RUBY'.indent(0)
+  require 'database_cleaner/active_record'
   RUBY
   end
 
-  inject_into_file 'spec/rails_helper.rb', after: "RSpec.configure do |config|\n" do <<-'RUBY'.indent(2)
+  inject_into_file 'spec/rails_helper.rb', after: "RSpec.configure do |config|\n" do <<~'RUBY'.indent(1)
     config.include FactoryBot::Syntax::Methods
     config.include Requests::JsonHelpers, type: :request
 
@@ -172,12 +172,21 @@ after_bundle do
 
   directory 'spec/support'
   copy_file('spec/support/request_helpers.rb')
-  rails_command('webpacker:install')
   rails_command('webpacker:install:react')
 
+  rake 'db:create'
   # migration
   generate('model Superuser login password')
 
+
+  rake 'db:migrate'
+  inject_into_file 'app/models/superuser.rb', after: "ApplicationRecord\n" do <<~'RUBY'.indent(1)
+    has_secure_password
+
+    validates :login, presence: true, uniqueness: true
+    validates :password, presence: true, on: :create
+   RUBY
+  end
   ##########
   git :init
   git add: "."
