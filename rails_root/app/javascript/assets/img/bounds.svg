@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+    <defs>
+        <filter id="a" width="126.1%" height="122.8%" x="-13.1%" filterUnits="objectBoundingBox">
+            <feOffset dy="6" in="SourceAlpha" result="shadowOffsetOuter1"/>
+            <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="6"/>
+            <feColorMatrix in="shadowBlurOuter1" result="shadowMatrixOuter1" values="0 0 0 0 0.188235294 0 0 0 0 0.207843137 0 0 0 0 0.254901961 0 0 0 0.1 0"/>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <path id="c" d="M2 0h356a2 2 0 0 1 2 2v408a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+        <filter id="b" width="111.7%" height="110.2%" x="-5.8%" y="-3.6%" filterUnits="objectBoundingBox">
+            <feOffset dy="6" in="SourceAlpha" result="shadowOffsetOuter1"/>
+            <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="6"/>
+            <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0.188235294 0 0 0 0 0.207843137 0 0 0 0 0.254901961 0 0 0 0.1 0"/>
+        </filter>
+    </defs>
+    <g fill="none" fill-rule="evenodd">
+        <path fill="#FFF" d="M-856-196H584v900H-856z"/>
+        <path d="M-700-28H44v64h-744z"/>
+        <text fill="#DB3535" font-family="Roboto-Bold, Roboto" font-size="14" font-weight="bold" transform="translate(-700 -12)">
+            <tspan x="661.306" y="17">Все офферы</tspan>
+        </text>
+        <path fill="#FFF" d="M-856-196H584v900H-856z" opacity=".9"/>
+        <g filter="url(#a)" transform="translate(-316 -20)">
+            <use fill="#000" filter="url(#b)" xlink:href="#c"/>
+            <use fill="#FFF" xlink:href="#c"/>
+            <g>
+                <path fill="#FFF" fill-opacity="0" d="M0 0h360v64H0z" opacity=".9"/>
+                <path fill="#565F70" d="M330.707 24L323 31.708l7.707 7.706L332.122 38l-6.294-6.292 6.294-6.294z"/>
+            </g>
+        </g>
+    </g>
+</svg>

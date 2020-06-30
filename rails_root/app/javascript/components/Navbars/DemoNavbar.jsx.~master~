@@ -1,0 +1,302 @@
+/*!
+
+=========================================================
+* Paper Dashboard React - v1.1.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/paper-dashboard-react
+* Copyright 2019 Creative Tim (https://www.creative-tim.com)
+
+* Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard-react/blob/master/LICENSE.md)
+
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+*/
+import React from "react";
+import { Link } from "react-router-dom";
+import {
+  Collapse,
+  Navbar,
+  NavbarToggler,
+  NavbarBrand,
+  Nav,
+  NavItem,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Container,
+  InputGroup,
+  InputGroupText,
+  InputGroupAddon,
+  Input
+} from "reactstrap";
+import AppDataManager from '../AppDataManager';
+import {deepCamelCase, camelCase} from '../../utils/deepUtils'
+import routes from "routes.js";
+import ModalExample from '../../components/Modal/Modal'
+import Cookies from 'js-cookie';
+
+class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isOpen: false,
+      dropdownOpen: false,
+      isOpenModal: false,
+      regState: 'login_phone',
+      color: "transparent",
+      result: 'xxx'
+    };
+    this.sidebarToggle = React.createRef();
+  }
+  toggle() {
+    if (this.state.isOpen) {
+      this.setState({
+        color: "transparent"
+      });
+    } else {
+      this.setState({
+        color: "dark"
+      });
+    }
+    this.setState({
+      isOpen: !this.state.isOpen
+    });
+  }
+
+  modalToggle = () => {
+    console.log('xxxxx');
+    this.setState({
+      isOpenModal: !this.state.isOpenModal
+    });
+  }
+
+  modalClose = () => {
+    console.log('cloasssss');
+    this.setState({
+      isOpenModal: false
+    });
+  }
+
+  dropdownToggle(e) {
+    this.setState({
+      dropdownOpen: !this.state.dropdownOpen
+    });
+  }
+  getBrand() {
+    let brandName = "Default Brand";
+    routes.map((prop, key) => {
+      if (window.location.href.indexOf(prop.layout + prop.path) !== -1) {
+        brandName = prop.name;
+      }
+      return null;
+    });
+    return brandName;
+  }
+  openSidebar() {
+    document.documentElement.classList.toggle("nav-open");
+    this.sidebarToggle.current.classList.toggle("toggled");
+  }
+  // function that adds color dark/transparent to the navbar on resize (this is for the collapse)
+  updateColor() {
+    if (window.innerWidth < 993 && this.state.isOpen) {
+      this.setState({
+        color: "dark"
+      });
+    } else {
+      this.setState({
+        color: "transparent"
+      });
+    }
+  }
+
+
+  componentDidMount() {
+    window.addEventListener("resize", function() { console.log("RESIZE"),
+        (window.g_screenSize > window.g_screenHeight &&
+        document.documentElement.clientWidth <
+        document.documentElement.clientHeight || window.g_screenSize <
+        window.g_screenHeight && document.documentElement.clientWidth
+        > document.documentElement.clientHeight) &&
+        (window.g_screenSize = document.documentElement.clientWidth,
+        window.g_screenHeight = document.documentElement.clientHeight,
+        o.a.unmountComponentAtNode(document.getElementById("main")),
+        Gf()) })
+    this.fetchPing();
+
+
+  }
+  componentDidUpdate(e) {
+    if (
+      window.innerWidth < 993 &&
+      e.history.location.pathname !== e.location.pathname &&
+      document.documentElement.className.indexOf("nav-open") !== -1
+    ) {
+      document.documentElement.classList.toggle("nav-open");
+      this.sidebarToggle.current.classList.toggle("toggled");
+    }
+  }
+
+
+  async fetchPing() {
+    let x;
+    this.setState({isLoading: true})
+    try {
+        const { ping } = await AppDataManager.api(`/check_api`)
+	console.log('vvvvvvvvvvvvvv', ping);
+	this.setState({result: ping})
+	console.log('this.setState.result', this.state.result);
+    } catch (e) {
+      console.warn(e)
+      return
+    } finally {
+      this._isMounted && this.setState({isLoading: false})
+    }
+    if (!this._isMounted) {return}
+
+    this.setState({isDraftLoaded: true})
+  }
+
+  changeState = (newState) => {
+    let currentState = this.state.regState;
+    console.log('currentState', currentState);
+    console.log('newState', newState);
+    this.setState({regState: newState});
+  }
+
+  render() {
+    const auth = !!Cookies.get('xxx_login');
+    return (
+
+      // add or remove classes depending if we are on full-screen-maps page or not
+      <Navbar
+        color={
+          this.props.location.pathname.indexOf("full-screen-maps") !== -1
+            ? "dark"
+            : this.state.color
+        }
+        expand="lg"
+        className={
+          this.props.location.pathname.indexOf("full-screen-maps") !== -1
+            ? "navbar-absolute fixed-top"
+            : "navbar-absolute fixed-top " +
+              (this.state.color === "transparent" ? "navbar-transparent " : "")
+        }
+      >
+        <Container fluid className='navbar-container-padding'>
+	  <ModalExample
+	     modalX={this.state.isOpenModal}
+	     modalClose={this.modalClose}
+	     changeState={this.changeState}
+	     regState={this.state.regState}
+	     isAuthed={this.props.isAuthed} />
+          <div className="navbar-wrapper">
+
+            <NavbarBrand href="/">{this.getBrand()}</NavbarBrand>
+          </div>
+          <NavbarToggler onClick={() => this.toggle()}>
+            <span className="navbar-toggler-bar navbar-kebab" />
+            <span className="navbar-toggler-bar navbar-kebab" />
+            <span className="navbar-toggler-bar navbar-kebab" />
+          </NavbarToggler>
+          <Collapse
+            isOpen={this.state.isOpen}
+            navbar
+            className="justify-content-between"
+          >
+            <form>
+              <InputGroup className="no-border">
+                <Input placeholder="Поиск..." />
+                <InputGroupAddon addonType="append">
+                  <InputGroupText>
+                    <i className="nc-icon nc-zoom-split" />
+                  </InputGroupText>
+                </InputGroupAddon>
+              </InputGroup>
+            </form>
+	     <Nav navbar>
+	      <NavItem>
+               <Link to="/main/dashboard" className="nav-link btn-magnify">
+                  <p>
+                    <span className="d-md-block navbar-link-name">Главная</span>
+                  </p>
+                </Link>
+	      </NavItem>
+              <NavItem>
+		<Link to="/main/offers" className="nav-link btn-magnify">
+                  <p>
+                    <span className="d-md-block navbar-link-name">Офферы</span>
+                  </p>
+                </Link>
+              </NavItem>
+	      { auth &&
+	      <NavItem>
+                <Link to="/orders" className="nav-link btn-magnify">
+                  <p>
+                    <span className="d-md-block navbar-link-name">История сделок</span>
+                  </p>
+                </Link>
+              </NavItem>
+		  }
+            </Nav>
+
+
+            <Nav navbar>
+              <Dropdown
+                nav
+                isOpen={this.state.dropdownOpen}
+                toggle={e => this.dropdownToggle(e)}
+              >
+                <DropdownToggle caret nav>
+                  <i className="nc-icon nc-bell-55" />
+                  <p>
+                    <span className="d-lg-none d-md-block">Some Actions</span>
+                  </p>
+                </DropdownToggle>
+                <DropdownMenu right>
+                  <DropdownItem tag="a">Action</DropdownItem>
+                  <DropdownItem tag="a">Another Action</DropdownItem>
+                  <DropdownItem tag="a">Something else here</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+	      <NavItem>
+                <Link to="#pablo" className="nav-link btn-magnify">
+                  <i className="nc-icon nc-favourite-28" />
+                  <p>
+                    <span className="d-lg-none d-md-block"></span>
+                  </p>
+                </Link>
+              </NavItem>
+	      { (!auth)  && (
+                <NavItem onClick={e => {this.toggle(); this.modalToggle(e);} }>
+                <Link to="#" className="nav-link btn-rotate">
+
+                  <p>
+                    <span className="navbar-link-name">ВОЙТИ</span>
+                  </p>
+                </Link>
+              </NavItem>
+	      ) }
+
+	     { (auth) && (<NavItem onClick={e => { console.log('fff');Cookies.remove('xxx_login'); Cookies.remove('userID');} }>
+                <Link to="#profile" className="nav-link btn-magnify">
+                  <i className="nc-icon nc-circle-10" />
+                  <p>
+                    <span className="d-lg-none d-md-block">Stats</span>
+                  </p>
+                </Link>
+              </NavItem> )}
+            </Nav>
+          </Collapse>
+        </Container>
+      </Navbar>
+    );
+  }
+}
+
+export default Header;

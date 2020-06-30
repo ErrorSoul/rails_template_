@@ -20,11 +20,13 @@ application do
      config.generators.system_tests = :rspec
     ]
 end
-
+remove_file 'app/views/layouts/application.html.erb'
+remove_file 'app/views/layouts/application.html.slim'
 directory 'app/components'
 directory 'app/controllers'
 directory 'app/views'
-remove_file 'app/views/layouts/application.html.erb'
+directory 'app/javascript'
+
 remove_file 'config/routes.rb'
 copy_file   'config/routes.rb'
 
@@ -175,6 +177,10 @@ after_bundle do
   directory 'spec/support'
   copy_file('spec/support/request_helpers.rb')
   rails_command('webpacker:install:react')
+
+  run 'yarn add react-dom react-router-dom  react-redux'
+  run 'yarn add bootstrap reactstrap react-dom'
+  run 'yarn add perfect-scrollbar react-draft-wysiwyg react-input-mask react-notification-alert perfect-scrollbar chart.js react-chartjs-2 draft-js draftjs-to-html rc-pagination js-cookie'
 
   rake 'db:create'
   # migration
