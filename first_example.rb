@@ -22,6 +22,7 @@ application do
 end
 
 directory 'app/components'
+directory 'app/controllers'
 
 remove_file 'config/routes.rb'
 copy_file   'config/routes.rb'
