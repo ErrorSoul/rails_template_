@@ -1,0 +1,19 @@
+doctype strict
+html
+  head
+    meta[http-equiv="Content-Type" content="text/html; charset=utf-8"]
+    = stylesheet_link_tag "application-mailer", media: "all"
+  body.bg-light
+    .container
+      .row
+        .col-12.m-1
+          h2.text-danger.text-center Lavé
+          hr
+      .row.my-3
+        .col-12
+          = yield
+      .row
+        .col-12
+          .card
+            .card-body
+              p info@lave.press

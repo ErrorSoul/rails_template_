@@ -1,17 +1,21 @@
 doctype html
 html
   head
-    meta charset="utf-8" /
-    meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" /
+    meta charset="utf-8"
+    meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/v4-shims.css">
+    '
+    / <link rel="mask-icon" href="/favicon.svg" color="blue">
+    / <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    / <link rel="icon" type="image/png" href="/favicon.png">
 
-    title
+    title Lavè
     = csrf_meta_tags
-    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
-    = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
-
+    = csp_meta_tag
+    = stylesheet_pack_tag 'application'
+    = javascript_pack_tag 'App'
+    = yield :head
   body
-
-    = render partial: 'navbar'
     .container-fluid
-      = flash_messages
       = yield

@@ -1,0 +1,13 @@
+.card
+  .card-body
+
+    h5
+
+      | Добро пожаловать
+      | &nbsp;
+      span.text-danger = @user.email
+    hr
+     p
+       = t(".body")
+       | &nbsp;
+       span.text-danger = t(".site_name")
