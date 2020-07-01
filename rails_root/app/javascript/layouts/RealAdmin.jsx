@@ -26,11 +26,11 @@ import Footer from "../admin/components/Footer/Footer.jsx";
 import Sidebar from "../admin/components/Sidebar/Sidebar.jsx";
 import AdminLogin from "../views/admin/AdminLogin.jsx";
 import routes from "admin_routes.js";
-import AppDataManager from '../components/AppDataManager';
+import AppDataManager from "../components/AppDataManager";
 import { logIn, logOut } from "../store/auth/actions";
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import Notification from 'components/Notification.jsx';
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
+import Notification from "components/Notification.jsx";
 var ps;
 
 class Dashboard extends React.Component {
@@ -38,7 +38,7 @@ class Dashboard extends React.Component {
     super(props);
     this.state = {
       backgroundColor: "black",
-      activeColor: "info"
+      activeColor: "info",
     };
     this.mainPanel = React.createRef();
   }
@@ -60,10 +60,10 @@ class Dashboard extends React.Component {
       document.scrollingElement.scrollTop = 0;
     }
   }
-  handleActiveClick = color => {
+  handleActiveClick = (color) => {
     this.setState({ activeColor: color });
   };
-  handleBgClick = color => {
+  handleBgClick = (color) => {
     this.setState({ backgroundColor: color });
   };
 
@@ -78,23 +78,25 @@ class Dashboard extends React.Component {
         />
         <div className="main-panel-admin" ref={this.mainPanel}>
           <DemoNavbar {...this.props} />
-					<Notification {...this.props} ></Notification>
+          <Notification {...this.props}></Notification>
           <Switch>
-						<Route path="/admin/login" render={props => <AdminLogin {...props} />} />
-						{ this.props.isAuth ? (
-								routes.map((prop, key) => {
-									return (
-
-										<Route
-											 path={prop.layout + prop.path}
-											 render={props => <prop.component {...props} />}
-											 key={key}
-											 />
-									);
-								}) ) : (<Redirect to="/admin/login"/>) }
-
-
-
+            <Route
+              path="/admin/login"
+              render={(props) => <AdminLogin {...props} />}
+            />
+            {this.props.isAuth ? (
+              routes.map((prop, key) => {
+                return (
+                  <Route
+                    path={prop.layout + prop.path}
+                    render={(props) => <prop.component {...props} />}
+                    key={key}
+                  />
+                );
+              })
+            ) : (
+              <Redirect to="/admin/login" />
+            )}
           </Switch>
           <Footer fluid />
         </div>
@@ -104,14 +106,15 @@ class Dashboard extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-		return {
-			isAuth: state.auth.isAuth
-		};
+  return {
+    isAuth: state.auth.isAuth,
+  };
 };
 
 const mapDispatchToProps = {
-  logIn
+  logIn,
 };
 
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Dashboard));
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(Dashboard)
+);
