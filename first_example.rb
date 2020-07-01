@@ -187,8 +187,8 @@ after_bundle do
 
   rake 'db:create'
   # migration
-  generate('model Superuser login password')
-
+  generate('model Superuser login password_digest')
+  append_to_file 'db/seeds.rb', %Q(Superuser.create(login: 'admin', password: 'admin123'))
 
   rake 'db:migrate'
   inject_into_file 'app/models/superuser.rb', after: "ApplicationRecord\n" do <<~'RUBY'.indent(1)
@@ -198,6 +198,8 @@ after_bundle do
     validates :password, presence: true, on: :create
    RUBY
   end
+
+  rake 'db:seed'
   ##########
   git :init
   git add: "."

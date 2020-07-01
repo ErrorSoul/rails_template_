@@ -4,6 +4,7 @@ Rails.application.routes.draw do
       resources :registration, only: [:create]
       get  'auth_auth' => 'auth#auth'
       delete 'auth_s'  => 'auth#destroy_admin'
+      post 'login_norm' => 'auth#login'
       post 'password/forgot', to: 'passwords#forgot'
       post 'password/reset', to: 'passwords#reset'
       get  'password/check', to: 'passwords#check'
