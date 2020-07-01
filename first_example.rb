@@ -21,7 +21,7 @@ application do
     ]
 end
 remove_file 'app/views/layouts/application.html.erb'
-remove_file 'app/views/layouts/application.html.slim'
+remove_file 'app/controllers/application_controller.rb'
 directory 'app/components'
 directory 'app/controllers'
 directory 'app/views'
@@ -178,9 +178,12 @@ after_bundle do
   copy_file('spec/support/request_helpers.rb')
   rails_command('webpacker:install:react')
 
-  run 'yarn add react-dom react-router-dom  react-redux'
-  run 'yarn add bootstrap reactstrap react-dom'
-  run 'yarn add perfect-scrollbar react-draft-wysiwyg react-input-mask react-notification-alert perfect-scrollbar chart.js react-chartjs-2 draft-js draftjs-to-html rc-pagination js-cookie'
+  run 'yarn add react-dom react-router-dom redux react-redux'
+  run 'yarn add bootstrap reactstrap react-dom @babel/preset-flow'
+  run 'yarn add jquery perfect-scrollbar react-draft-wysiwyg react-input-mask react-notification-alert perfect-scrollbar chart.js react-chartjs-2 draft-js draftjs-to-html rc-pagination js-cookie '
+  remove_file('babel.config.js')
+  copy_file('babel.config.js')
+
 
   rake 'db:create'
   # migration
