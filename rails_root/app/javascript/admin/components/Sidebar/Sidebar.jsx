@@ -23,7 +23,7 @@ import { Nav } from "reactstrap";
 import PerfectScrollbar from "perfect-scrollbar";
 import { connect } from 'react-redux';
 //import logo from "logo.svg";
-import LaveLogo  from "components/LaveLogo";
+import AppNameLogo  from "components/AppNameLogo";
 
 var ps;
 
@@ -66,7 +66,7 @@ class Sidebar extends React.Component {
             style={{width: "auto"}}
           >
             <div>
-             <LaveLogo/>
+             <AppNameLogo/>
             </div>
           </a>
           <a

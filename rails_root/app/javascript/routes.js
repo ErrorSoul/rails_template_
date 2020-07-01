@@ -40,7 +40,7 @@ var routes = [
 
   {
     path: "/dashboard",
-    name: "Lave",
+    name: "AppName",
     icon: "nc-icon nc-bank",
     component: Dashboard,
     layout: "/main"
@@ -106,7 +106,7 @@ var routes = [
 
   {
     path: "/offers",
-    name: "Lave",
+    name: "AppName",
     icon: "nc-icon nc-bank",
     component: Offers,
     layout: "/main"

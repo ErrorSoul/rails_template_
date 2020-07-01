@@ -1,7 +1,7 @@
 import React from "react";
 
 
-const LaveLogo = (props) => {
+const AppNameLogo = (props) => {
   return (
    <svg width={props.width || '76px'} height={props.height || '20px'} margin-bottom="4px" viewBox="0 0 76 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style={{marginBottom: "4px"}}>
     <title>LAVÈ</title>
@@ -16,4 +16,4 @@ const LaveLogo = (props) => {
   );
 };
 
-export default LaveLogo;
+export default AppNameLogo;

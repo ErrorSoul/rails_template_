@@ -73,7 +73,7 @@ class Sidebar extends React.Component {
             href="https://www.creative-tim.com"
             className="simple-text logo-normal"
           >
-            Lave Admin
+            AppName Admin
           </a>
         </div>
         <div className="sidebar-wrapper" ref={this.sidebar}>

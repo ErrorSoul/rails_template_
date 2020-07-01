@@ -58,7 +58,7 @@ class Header extends React.Component {
     });
   }
   getBrand() {
-    let brandName = "Lave Admin";
+    let brandName = "AppName Admin";
     routes.map((prop, key) => {
       if (window.location.href.indexOf(prop.layout + prop.path) !== -1) {
         brandName = prop.name;

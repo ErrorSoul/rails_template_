@@ -44,7 +44,7 @@ import { connect } from "react-redux";
 import { openModal, closeModal } from "../../store/modals/actions";
 import { logIn, logOut } from "../../store/auth/actions";
 import { notikLogOut } from "../../store/notifications/actions";
-import LaveLogo  from "components/LaveLogo";
+import AppNameLogo  from "components/AppNameLogo";
 
 class Header extends React.Component {
   _isMounted = false;
@@ -249,7 +249,7 @@ class Header extends React.Component {
           />
           <div className='navbar-wrapper'>
             <NavbarBrand className='navbar-lave-logo' href='/'>
-              <LaveLogo/>
+              <AppNameLogo/>
             </NavbarBrand>
           </div>
           <NavbarToggler onClick={() => this.toggle()}>

@@ -9,7 +9,7 @@ import CodeConfirmationForm from 'components/Forms/CodeConfirmationForm';
 import LoginForm from 'components/Forms/LoginForm';
 import PhoneForm from 'components/Forms/PhoneForm';
 import ForgotEmailForm  from 'components/Forms/ForgotEmailForm';
-import LaveLogo  from "components/LaveLogo";
+import AppNameLogo  from "components/AppNameLogo";
 
 
 class MainLogin extends React.Component {
@@ -124,7 +124,7 @@ class MainLogin extends React.Component {
                   <div className='col-lg-5 col-12 main-login-border'>
                     <div className="row h-100 justify-content-center align-items-center">
                       <div className='col-xs-12 mb-3 mt-3'>
-						            <LaveLogo width="150px" height="75px" nameClass='lave-brand'/>
+						            <AppNameLogo width="150px" height="75px" nameClass='lave-brand'/>
                       </div>
                     </div>
                     <RState history={history} isAuthed={isAuthed} changeState={this.changeState} regState={regState} toggle={this.toggle}/>

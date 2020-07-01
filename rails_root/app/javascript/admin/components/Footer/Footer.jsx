@@ -34,7 +34,7 @@ class Footer extends React.Component {
               <ul>
                 <li>
                   <a href="https://www.creative-tim.com" target="_blank">
-                    Lave
+                    AppName
                   </a>
                 </li>
                 <li>
@@ -55,7 +55,7 @@ class Footer extends React.Component {
             <div className="credits ml-auto">
               <div className="copyright">
                 &copy; {1900 + new Date().getYear()}, made with {'love'}
-                <i className="fa fa-heart heart" /> by Lave
+                <i className="fa fa-heart heart" /> by AppName
               </div>
             </div>
           </Row>
