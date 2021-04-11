@@ -11,6 +11,7 @@ class ApiForm::RegistrationEmailForm < ApiForm::Base
   validates(*names, presence: { message: 'Не может быть пустым' })
   validates :email, format: { with: EMAIL_REGEX, message: 'Неправильный формат' }
   validate  :email_not_taken?
+  validates :password, length: { in: PASSWORD_LENGTH }
 
 
   def create
