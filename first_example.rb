@@ -25,7 +25,7 @@ remove_file 'app/controllers/application_controller.rb'
 directory 'app/components'
 directory 'app/controllers'
 directory 'app/views'
-directory 'app/javascript'
+# directory 'app/javascript'
 
 remove_file 'config/routes.rb'
 copy_file   'config/routes.rb'
@@ -132,7 +132,7 @@ copy_file   'config/routes.rb'
 #   git commit: "-a -m 'Initial commit'"
 # end
 after_bundle do
-  run 'spring stop'
+  run 'bin/spring stop'
   rails_command 'generate rspec:install'
   append_to_file '.rspec', '--format d'
   rails_command 'g annotate:install'
@@ -181,8 +181,8 @@ after_bundle do
   run 'yarn add react-dom react-router-dom redux react-redux'
   run 'yarn add bootstrap reactstrap react-dom @babel/preset-flow'
   run 'yarn add jquery perfect-scrollbar react-draft-wysiwyg react-input-mask react-notification-alert perfect-scrollbar chart.js react-chartjs-2 draft-js draftjs-to-html rc-pagination js-cookie '
-  remove_file('babel.config.js')
-  copy_file('babel.config.js')
+  #remove_file('babel.config.js')
+  #copy_file('babel.config.js')
 
 
   rake 'db:create'
