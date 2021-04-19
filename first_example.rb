@@ -181,7 +181,7 @@ after_bundle do
   run 'yarn add react-dom react-router-dom redux react-redux'
   run 'yarn add bootstrap reactstrap react-dom @babel/preset-flow'
   #run 'yarn add jquery perfect-scrollbar react-draft-wysiwyg react-input-mask react-notification-alert perfect-scrollbar chart.js react-chartjs-2 draft-js draftjs-to-html rc-pagination js-cookie '
-  run 'yarn add chart.js classnames history match-sorter moment node-sass nouislider perfect-scrollbar prop-types react-big-calendar react-bootstrap-sweetalert react-bootstrap-switch react-bootstrap-wizard react-chartjs-2 react-datetime react-google-maps react-jvectormap react-notification-alert react-select react-table react-tagsinput'
+  run 'yarn add chart.js classnames history match-sorter moment node-sass nouislider perfect-scrollbar prop-types react-big-calendar react-bootstrap-sweetalert react-bootstrap-switch react-bootstrap-wizard react-chartjs-2 react-datetime react-google-maps react-jvectormap react-notification-alert react-select react-table react-tagsinput rc-pagination  jquery js-cookie'
 
   #remove_file('babel.config.js')
   #copy_file('babel.config.js')
