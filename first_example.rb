@@ -4,12 +4,12 @@ def source_paths
 [File.join(File.expand_path(File.dirname(__FILE__)),'rails_root')]
 end
 
-run "dropdb #{app_name}_development --if-exists"
-run "dropdb #{app_name}_test --if-exists"
-remove_file "Gemfile"
-copy_file('Gemfile')
-remove_file 'config/database.yml'
-template 'config/database.erb', 'config/database.yml'
+#run "dropdb #{app_name}_development --if-exists"
+#run "dropdb #{app_name}_test --if-exists"
+#remove_file "Gemfile"
+#copy_file('Gemfile')
+#remove_file 'config/database.yml'
+#template 'config/database.erb', 'config/database.yml'
 
 application do
   %Q[
@@ -25,7 +25,7 @@ remove_file 'app/controllers/application_controller.rb'
 directory 'app/components'
 directory 'app/controllers'
 directory 'app/views'
-directory 'app/javascript'
+#directory 'app/javascript'
 
 remove_file 'config/routes.rb'
 copy_file   'config/routes.rb'
@@ -132,7 +132,7 @@ copy_file   'config/routes.rb'
 #   git commit: "-a -m 'Initial commit'"
 # end
 after_bundle do
-  run 'spring stop'
+  #run 'spring stop'
   rails_command 'generate rspec:install'
   append_to_file '.rspec', '--format d'
   rails_command 'g annotate:install'
@@ -176,11 +176,11 @@ after_bundle do
 
   directory 'spec/support'
   copy_file('spec/support/request_helpers.rb')
-  rails_command('webpacker:install:react')
+  # rails_command('webpacker:install:react')
 
-  run 'yarn add react-dom react-router-dom redux react-redux'
-  run 'yarn add bootstrap reactstrap react-dom @babel/preset-flow'
-  run 'yarn add jquery perfect-scrollbar react-draft-wysiwyg react-input-mask react-notification-alert perfect-scrollbar chart.js react-chartjs-2 draft-js draftjs-to-html rc-pagination js-cookie '
+  # run 'yarn add react-dom react-router-dom redux react-redux'
+  # run 'yarn add bootstrap reactstrap react-dom @babel/preset-flow'
+  # run 'yarn add jquery perfect-scrollbar react-draft-wysiwyg react-input-mask react-notification-alert perfect-scrollbar chart.js react-chartjs-2 draft-js draftjs-to-html rc-pagination js-cookie '
   remove_file('babel.config.js')
   copy_file('babel.config.js')
 
