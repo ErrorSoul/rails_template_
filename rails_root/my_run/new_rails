@@ -1,0 +1,8 @@
+#!/usr/bin/zsh
+
+rails new te_st --database=postgresql \
+                --skip-asset-pipeline \
+                --skip-javascript \
+                --skip-jbuilder \
+                -m rails_template_/first_example.rb \
+/
