@@ -1,5 +1,5 @@
 #!/usr/bin/zsh
-
+rm -rf  te_st/
 rails new te_st --database=postgresql \
                 --skip-asset-pipeline \
                 --skip-javascript \
