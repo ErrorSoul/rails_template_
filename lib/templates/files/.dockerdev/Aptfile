@@ -1,0 +1,8 @@
+# Дополнительные системные пакеты dev-образа, по одному на строку.
+# postgresql-client, nodejs и yarn ставятся отдельно (версии заданы ARG'ами в Dockerfile).
+build-essential
+git
+less
+libpq-dev
+pkg-config
+vim

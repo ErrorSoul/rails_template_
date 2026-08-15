@@ -133,7 +133,8 @@ cat <<EOF
   cd $TARGET
 
   # 1. Поднять стек:
-  docker compose up                         # либо bin/rails db:prepare && bin/dev
+  ./run setup && ./run up                   # либо bin/rails db:prepare && bin/dev без докера
+  ./run help                                # весь список команд
 
   # 2. Открыть HTTPS-туннель (Telegram не пускает HTTP):
   cloudflared tunnel --url http://localhost:3000

@@ -78,11 +78,15 @@ directory 'config/initializers', force: true
 directory 'lib/generators', force: true
 copy_file 'config/routes.rb', force: true
 copy_file 'Procfile.dev', force: true
-copy_file 'Dockerfile', force: true
-copy_file 'docker-compose.yml', force: true
 copy_file '.rubocop.yml', force: true
 copy_file '.dockerignore', force: true
 copy_file '.githooks/pre-commit', force: true
+
+# Dev-окружение («Ruby on Whales» без dip). Продакшн-Dockerfile от Rails 8.1 не трогаем —
+# он про деплой, а .dockerdev/ про разработку.
+# mode: :preserve обязателен: обычный copy_file кладёт 644, и ./run окажется неисполняемым.
+directory '.dockerdev', force: true
+copy_file 'run', force: true, mode: :preserve
 
 # ---- ERB-rendered files (use @app_display_name etc.) ----------------------
 template '.env.example.erb', '.env.example'
@@ -157,7 +161,7 @@ after_bundle do
   say_status :tma, '✅ Done. Next steps:'
   say "
   cd #{app_name}
-  docker compose up           # либо bin/dev
+  ./run setup && ./run up     # либо bin/dev без докера
   cloudflared tunnel --url http://localhost:3000
   # → возьми HTTPS URL, в BotFather:
   #   /mybots → @YourBot → Bot Settings → Menu Button → URL = https://<tunnel>/tma

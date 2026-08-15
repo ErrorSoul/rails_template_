@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+# ./run — управление dev-окружением проекта (Docker, паттерн «Ruby on Whales»).
+# Использование: ./run <команда> [аргументы]
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="$ROOT_DIR/.dockerdev/compose.yml"
+
+# Имя compose-проекта = имя папки репозитория. Без этого все проекты,
+# сгенерированные из шаблона, назывались бы «dockerdev» (по каталогу
+# compose-файла) и делили бы одни и те же volume'ы.
+PROJECT_NAME="$(basename "$ROOT_DIR" | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9_-]/_/g' -e 's/^[^a-z0-9]*//')"
+[ -n "$PROJECT_NAME" ] || PROJECT_NAME="app"
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-$PROJECT_NAME}"
+
+# Цвета
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+compose() { docker compose -f "$COMPOSE_FILE" "$@"; }
+web() { compose exec rails "$@"; }
+
+help() {
+  echo ""
+  echo -e "${BOLD}${COMPOSE_PROJECT_NAME} — dev-окружение в Docker${NC}"
+  echo ""
+  echo -e "${YELLOW}Первый запуск: ./run setup && ./run up${NC}"
+  echo "  (setup ставит гемы/пакеты и создаёт базы; /up здоров и без базы, сам он их не создаст)"
+  echo ""
+  echo -e "${CYAN}Окружение:${NC}"
+  echo "  ./run setup            — bundle + yarn + db:prepare dev и test (идемпотентно)"
+  echo "  ./run up               — поднять сервисы (rails + vite + postgres)"
+  echo "  ./run down             — остановить сервисы"
+  echo "  ./run build            — пересобрать образы"
+  echo "  ./run restart          — перезапустить сервисы"
+  echo "  ./run logs [сервис]    — логи (по умолчанию все, ^C для выхода)"
+  echo ""
+  echo -e "${CYAN}Rails:${NC}"
+  echo "  ./run console          — Rails console"
+  echo "  ./run rails <args>     — bin/rails <args>, напр. ./run rails db:migrate"
+  echo "  ./run gen <args>       — bin/rails generate <args>"
+  echo "  ./run psql [база]      — psql (по умолчанию ${PROJECT_NAME}_development)"
+  echo ""
+  echo -e "${CYAN}Зависимости:${NC}"
+  echo "  ./run bundle <args>    — bundle <args>, напр. ./run bundle install"
+  echo "  ./run yarn <args>      — yarn <args>, напр. ./run yarn add clsx"
+  echo ""
+  echo -e "${CYAN}Проверки:${NC}"
+  echo "  ./run test [args]      — rspec"
+  echo "  ./run lint [args]      — rubocop"
+  echo ""
+  echo -e "${CYAN}Прочее:${NC}"
+  echo "  ./run shell            — bash в контейнере rails"
+  echo ""
+  echo -e "Наружу открыт только ${BOLD}:3000${NC}. Postgres — через ${BOLD}./run psql${NC},"
+  echo -e "ассеты Vite в dev отдаёт Rails через ViteRuby::DevServerProxy."
+  echo ""
+}
+
+require_running() {
+  if ! compose ps --services --filter "status=running" 2>/dev/null | grep -q '^rails$'; then
+    echo -e "${RED}Контейнер rails не запущен. Сначала: ./run up${NC}"
+    exit 1
+  fi
+}
+
+case "${1:-}" in
+
+  # ── Окружение ───────────────────────────────────────────────────────────────
+
+  up)
+    echo -e "${GREEN}Запускаем сервисы...${NC}"
+    compose up -d
+    echo -e "${GREEN}✓ Готово. Приложение: http://localhost:3000${NC}"
+    ;;
+
+  down)
+    echo -e "${YELLOW}Останавливаем сервисы...${NC}"
+    compose down
+    ;;
+
+  build)
+    echo -e "${CYAN}Пересобираем образы...${NC}"
+    compose build
+    ;;
+
+  restart)
+    echo -e "${YELLOW}Перезапуск...${NC}"
+    compose restart
+    ;;
+
+  setup)
+    echo -e "${CYAN}Ставим гемы, пакеты и готовим базу...${NC}"
+    compose run --rm rails bash -c \
+      "(bundle check || bundle install) && yarn install \
+        && bin/rails db:prepare && RAILS_ENV=test bin/rails db:prepare"
+    echo -e "${GREEN}✓ Окружение готово. Дальше: ./run up${NC}"
+    ;;
+
+  logs)
+    shift
+    compose logs --tail=100 -f "$@"
+    ;;
+
+  # ── Rails ───────────────────────────────────────────────────────────────────
+
+  console)
+    require_running
+    echo -e "${CYAN}Открываем Rails console...${NC}"
+    web bin/rails console
+    ;;
+
+  rails)
+    require_running
+    shift
+    web bin/rails "$@"
+    ;;
+
+  gen)
+    require_running
+    shift
+    web bin/rails generate "$@"
+    ;;
+
+  psql)
+    shift
+    compose run --rm rails psql -d "${1:-${PROJECT_NAME}_development}"
+    ;;
+
+  # ── Зависимости ─────────────────────────────────────────────────────────────
+
+  bundle)
+    require_running
+    shift
+    web bundle "$@"
+    ;;
+
+  yarn)
+    require_running
+    shift
+    web yarn "$@"
+    ;;
+
+  # ── Проверки ────────────────────────────────────────────────────────────────
+
+  test)
+    require_running
+    shift
+    # RAILS_ENV задаём явно: в контейнере он уже равен development, а
+    # rails_helper делает ENV['RAILS_ENV'] ||= 'test' и такое значение не перебьёт.
+    compose exec -e RAILS_ENV=test rails bundle exec rspec "$@"
+    ;;
+
+  lint)
+    require_running
+    shift
+    web bundle exec rubocop "$@"
+    ;;
+
+  # ── Прочее ──────────────────────────────────────────────────────────────────
+
+  shell)
+    require_running
+    web bash
+    ;;
+
+  ""|help|--help|-h)
+    help
+    ;;
+
+  *)
+    echo -e "${RED}Неизвестная команда: $1${NC}"
+    echo "Используй ./run help для списка команд"
+    exit 1
+    ;;
+
+esac

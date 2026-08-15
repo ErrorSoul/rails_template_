@@ -1,0 +1,123 @@
+# Dev-окружение по паттерну «Ruby on Whales», без гема dip — вместо него ./run.
+#
+# Имя проекта берётся из COMPOSE_PROJECT_NAME, который выставляет ./run по имени
+# папки репозитория. Без него все сгенерированные проекты получили бы имя
+# «dockerdev» (по каталогу compose-файла) и делили бы одни и те же volume'ы.
+# Поэтому всегда ходим через ./run, а не через docker compose напрямую.
+name: ${COMPOSE_PROJECT_NAME:-app}
+
+x-app: &app
+  build:
+    context: .
+    dockerfile: ./Dockerfile
+    args:
+      RUBY_VERSION: '3.4.5'
+      PG_MAJOR: '16'
+      NODE_MAJOR: '22'
+      YARN_VERSION: '1.22.22'
+      BUNDLER_VERSION: '2.6.9'
+  image: ${COMPOSE_PROJECT_NAME:-app}-dev:1.0.0
+  env_file:
+    - path: ../.env
+      required: false
+  environment: &env
+    RAILS_ENV: ${RAILS_ENV:-development}
+    NODE_ENV: ${NODE_ENV:-development}
+    # Побеждает всё, что пришло из ../.env: там DATABASE_URL указывает на localhost,
+    # внутри docker-сети база доступна только как postgres:5432.
+    DATABASE_URL: postgres://postgres:postgres@postgres:5432
+    # Чтобы psql / pg_dump работали без флагов и без промпта пароля.
+    PGHOST: postgres
+    PGUSER: postgres
+    PGPASSWORD: postgres
+    BOOTSNAP_CACHE_DIR: /usr/local/bundle/_bootsnap
+    XDG_DATA_HOME: /app/tmp/cache
+    YARN_CACHE_FOLDER: /app/node_modules/.yarn-cache
+    HISTFILE: /usr/local/hist/.bash_history
+    PSQL_HISTFILE: /usr/local/hist/.psql_history
+    IRB_HISTFILE: /usr/local/hist/.irb_history
+    MALLOC_ARENA_MAX: 2
+    WEB_CONCURRENCY: ${WEB_CONCURRENCY:-0}
+    EDITOR: vim
+  tmpfs:
+    - /tmp
+  volumes:
+    - ..:/app:cached
+    - bundle:/usr/local/bundle
+    - node_modules:/app/node_modules
+    - rails_cache:/app/tmp/cache
+    - assets:/app/public/vite
+    - history:/usr/local/hist
+    - ./.psqlrc:/root/.psqlrc:ro
+    - ./.bashrc:/root/.bashrc:ro
+  stdin_open: true
+  tty: true
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    # Порт наружу НЕ пробрасывается: база живёт только во внутренней docker-сети.
+    # Иначе несколько сгенерированных проектов дерутся за хостовый 5432.
+    # Нужен доступ снаружи — ./run psql (psql-клиент едет в образе rails).
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  rails:
+    <<: *app
+    # bundle check || bundle install — потому что образ гемы приложения не содержит:
+    # они живут в volume `bundle`, который на свежем проекте пустой.
+    command: bash -c "(bundle check || bundle install) && rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0 -p 3000"
+    environment:
+      <<: *env
+      # Rails ходит в dev-сервер Vite по имени сервиса; браузер — только на :3000,
+      # ассеты идут через ViteRuby::DevServerProxy.
+      VITE_RUBY_HOST: vite
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3000/up > /dev/null']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      # Первый старт делает bundle install и db:prepare — даём время.
+      start_period: 180s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  vite:
+    <<: *app
+    command: bash -c "bin/vite dev"
+    environment:
+      <<: *env
+      VITE_RUBY_HOST: 0.0.0.0
+    # Порт 3036 наружу не пробрасывается — по той же причине, что и 5432:
+    # два проекта дрались бы за него. Браузеру он и не нужен, ассеты в dev
+    # отдаёт Rails через ViteRuby::DevServerProxy.
+    # На vite ничего не завязано через depends_on: флапающий healthcheck
+    # фронтенд-сервера не должен тормозить и ронять весь up.
+    healthcheck:
+      # /dev/tcp — фича bash, поэтому CMD с явным bash, а не CMD-SHELL (там dash).
+      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/127.0.0.1/3036']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  bundle:
+  node_modules:
+  rails_cache:
+  assets:
+  pg_data:
+  history:
