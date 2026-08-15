@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title><%= app_display_name %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="csrf-token" content="<%= form_authenticity_token %>">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <%= stylesheet_link_tag "design_system/tokens", "design_system/tma", media: "all" %>
+    <%= javascript_include_tag "tma", defer: true %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>Login · <%= app_display_name %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<%= form_authenticity_token %>">
+    <%= stylesheet_link_tag "design_system/tokens", "design_system/admin", media: "all" %>
+  </head>
+  <body class="ds-auth-layout">
+    <div class="ds-auth-layout__card">
+      <%= yield %>
+    </div>
+  </body>
+</html>

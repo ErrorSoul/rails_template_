@@ -1,0 +1,10 @@
+/* Telegram WebApp theme overlay — tma.js sets these from window.Telegram.WebApp.themeParams */
+:root[data-tg-theme] {
+  --color-bg:       var(--tg-bg, #1b2138);
+  --color-surface:  var(--tg-surface, #212b4a);
+  --color-text:     var(--tg-text, #ffffff);
+  --color-text-muted: var(--tg-hint, #adb5bd);
+  --color-link:     var(--tg-link, #1d8cf8);
+  --color-primary:  var(--tg-button, #e14eca);
+  --color-button-text: var(--tg-button-text, #ffffff);
+}

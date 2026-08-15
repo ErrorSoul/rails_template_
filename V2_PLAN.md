@@ -156,7 +156,7 @@ tsconfig.json
 
 **v1-генератор `tma_resource` эмитит ERB-вьюхи — это α-форма, он уходит.**
 
-Судьба 7 файлов в `lib/templates/files/lib/generators/tma_resource/`: удаляются, но по контракту
+Судьба 7 файлов в `lib/templates/base/files/lib/generators/tma_resource/`: удаляются, но по контракту
 `CLAUDE.md` («NEVER удалять `templates/` без проверки, что они не используются генератором»)
 перед удалением каждое имя шаблона грепается в `tma_resource_generator.rb`.
 `admin_controller.rb.erb` скорее всего переживёт — контроллер остаётся Rails-овским.
@@ -281,7 +281,7 @@ design_system DataTable полностью клиентский (§0.4). Вар�
 
 Копирование из `~/works/design_system` на этапе scaffold **привязывает шаблон к диску автора** —
 у кого угодно другого (и в CI) сборка сломается. Варианты:
-- **A.** Вендорить снапшот дерева в `lib/templates/files/app/frontend/components/ds/`.
+- **A.** Вендорить снапшот дерева в `lib/templates/base/files/app/frontend/components/ds/`.
   Шаблон самодостаточен. Ре-синк = ручной диff против апстрима.
 - **B.** Тянуть из git по тегу на этапе `after_bundle`. Всегда свежо, но нужна сеть и публичный доступ.
 - **C.** Git submodule в сгенерированном проекте. Свежо, но submodule'ы больно.
@@ -368,7 +368,7 @@ HEAD design_system — `4a804fb` от **2026-03-29**. За последние 30
 | 1 | ✅ **Сделано 2026-08-15** — прогон v1, результаты в §0.5 | — |
 | 1.5 | ✅ **Сделано 2026-08-15** — `b9812f6`. §0.5-A и §0.5-C закрыты. Дополнительно: найден пятый интерактивный вопрос от `importmap:install` (прятался за exit 0), заглушка `app/javascript/application.js` удалена. Rubocop 0 offenses **без единого Exclude**. Побочный эффект: маркер `TMA_RESOURCE_NAV` уехал в начало `admin_nav_items` (`Style/TrailingCommaInArrayLiteral`) — сгенерированные ресурсы теперь в меню **выше** Superusers; шагу 7 это ограничение соблюдать | — |
 | 2 | ✅ **Сделано 2026-08-15.** `.dockerdev/{Dockerfile,compose.yml,Aptfile,.psqlrc,.bashrc}` + `./run` (15 команд), проводка в `template.rb`, старые корневые `Dockerfile`/`docker-compose.yml` удалены. Наружу торчит только `:3000`; 5432 и 3036 не пробрасываются. `COMPOSE_PROJECT_NAME` = имя папки репозитория, иначе все проекты звались бы `dockerdev` и делили volume'ы. `copy_file 'run'` требует `mode: :preserve` — иначе 644. Продакшн-`Dockerfile` от Rails 8.1 не трогаем. **Не проверено:** полный `./run up` — сервис `vite` будет в рестарт-цикле до шага 5 (`bin/vite` появляется с `vite_rails`) | — |
-| 3 | Расщепить `template.rb` на base + tma overlay | — |
+| 3 | ✅ **Сделано 2026-08-15.** `template.rb` — тонкий диспетчер; логика в `lib/templates/{base,tma}.rb`, оверлеи в `lib/templates/{base,tma}/{files,erb}` + `tma/snippets/`. `bin/scaffold --preset=tma\|base` (дефолт tma). Механика DSL проверена эмпирически на railties 8.1.3/thor 1.5.0 и записана в `CLAUDE.md` § «Механика расщепления»: `apply` = `instance_eval` на том же генераторе, `source_paths` только в `template.rb` и обязательно `+ super`, `directory` не сливает деревья (отсюда префиксы источников), `after_bundle` — FIFO по всем файлам. Переименования, вытекающие из расщепления: helper `tg_app_name` → `app_display_name`, ENV `TG_APP_NAME`/`TG_ADMIN_*` → `APP_NAME`/`ADMIN_*` (`TG_BOT_TOKEN` остался единственной телеграмной переменной). Проверка: дифф дерева tma-пресета против до-расщепления даёт только timestamp'ы миграций и переименования выше — ни одного пропавшего/лишнего файла | — |
 | 4 | Решить §4.2, положить дерево design_system в шаблон + `bin/sync_ds` | §4.2 |
 | 5 | Vite + React 19 + TS + Tailwind v4; два энтрипоинта; `tokens.css` | шаг 4 |
 | 5.5 | **Решить §4.1** (клиентский DataTable или добавляем server-mode) — до того, как таблицы начнут разводиться по экранам | шаг 5 |
@@ -407,16 +407,26 @@ HEAD design_system — `4a804fb` от **2026-03-29**. За последние 30
 Спека, написанная ради гейта, нашла неподключённый три месяца shoulda-matchers. Гейт — не
 формальность, это единственный работающий детектор в проекте.
 
-### Сессия A — шаг 3: расщепить `template.rb`
+### Сессия A — шаг 3: расщепить `template.rb` ✅ сделано 2026-08-15
 
-Самая дешёвая из оставшихся и ни от чего не зависит. Хороший первый заход после компакта.
+Что реально понадобилось сверх плана — чтобы следующие сессии не переоткрывали:
+
+- **Опорное дерево снимается ДО первой правки.** `bin/scaffold` с чистого HEAD в отдельный
+  каталог, тем же `--app-name`; потом дифф. Без него «ничего не сломалось» — вера, а не факт.
+- **Гейт нельзя гонять из каталога сгенерированного приложения**: `rails new` подхватывает
+  его `Gemfile` через bundler и падает. В скрипте гейта — `cd /tmp` перед каждым прогоном.
+- **`grep` по base-проекту на `\btma\b` ловит `importmap`** (impor-**tma**-p). Считать это
+  остатком Telegram — ложная тревога.
+- Маркеры для оверлея в base-файлах названы `PRESET_ROUTES`/`PRESET_API_ROUTES`, а не `TMA_*`:
+  base не должен знать про Telegram. Маркеры генератора (`TMA_RESOURCE_*`) не трогали — их
+  целиком заменяет шаг 7.
 
 - `template.rb` становится тонким диспетчером; логика уезжает в `lib/templates/base.rb`
   (Rails + Docker + auth + admin) и `lib/templates/tma.rb` (Telegram-оверлей).
 - `bin/scaffold` получает выбор пресета. Флаг менять — значит обновлять `README.md`
   и пример в `CLAUDE.md` (это записано в `CLAUDE.md` как ALWAYS).
-- **Ловушка:** `source_paths` и относительные пути в `apply`/`copy_file` считаются от файла,
-  который их вызвал. Расщепление ломает пути раньше, чем ломает логику.
+- **Ловушка (оказалась ровно наоборот):** относительные пути НЕ считаются от вызвавшего файла —
+  они ищутся в `source_paths`. Подробности — `CLAUDE.md` § «Механика расщепления».
 - **Готово, когда:** гейт зелёный **для обоих пресетов**. Прогонов теперь два, каждый со своей
   базой и своей уборкой — закладываться на удвоенное время.
 
@@ -426,7 +436,8 @@ HEAD design_system — `4a804fb` от **2026-03-29**. За последние 30
 иначе диff станет нечитаемым.
 
 - Копируем `components/` + `utils/cn.ts` + `tokens/index.css` в
-  `lib/templates/files/app/frontend/components/ds/`. Showcase и `pages/` — нет (см. §4.2).
+  `lib/templates/base/files/app/frontend/components/ds/` (дерево переехало на шаге 3 — base,
+  а не tma: React-компоненты нужны обоим пресетам). Showcase и `pages/` — нет (см. §4.2).
 - Рядом `DS_VERSION` с upstream-SHA (`4a804fb`, 2026-03-29) и датой.
 - `bin/sync_ds` = `git -C ~/works/design_system diff <DS_VERSION>..HEAD -- app/src/components`.
   Скрипт **показывает** диff, не применяет его.

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# bin/scaffold — wraps `rails new -m template.rb` for ergonomic Telegram Mini App scaffolding.
+# bin/scaffold — wraps `rails new -m template.rb`.
 #
 # Usage:
 #   bin/scaffold <target-dir> [options]
 #
 # Options:
-#   --bot-token=<token>      Telegram bot token from @BotFather. If empty, you can
-#                            fill .env later (initData verification will fail until set).
+#   --preset=<tma|base>      tma (default) — Rails + Docker + админка + Telegram Mini App.
+#                            base          — то же самое без Telegram.
+#   --bot-token=<token>      Telegram bot token from @BotFather (preset=tma). If empty,
+#                            fill .env later (initData verification fails until set).
 #   --app-name=<name>        Display name (default: basename of <target-dir>).
 #   --admin-login=<login>    Initial superuser login (default: admin).
 #   --admin-pass=<pass>      Initial superuser password (default: admin123).
@@ -14,17 +16,19 @@
 #   --dry-run                Print the rails new command and exit.
 #   --help, -h               Show this help.
 #
-# Example:
+# Examples:
 #   bin/scaffold ~/works/my_tma --bot-token=123:ABC --app-name="My TMA"
+#   bin/scaffold ~/works/my_app --preset=base --app-name="My App"
 
 set -euo pipefail
 
 usage() {
-  sed -n '4,22p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '4,21p' "$0" | sed 's/^# \{0,1\}//'
 }
 
 # ── parse args ──────────────────────────────────────────────────────────────
 TARGET=""
+PRESET="tma"
 BOT_TOKEN="${TG_BOT_TOKEN:-}"
 APP_NAME=""
 ADMIN_LOGIN="admin"
@@ -35,6 +39,7 @@ SKIP_BUNDLE=""
 for arg in "$@"; do
   case "$arg" in
     --help|-h)              usage; exit 0 ;;
+    --preset=*)             PRESET="${arg#*=}" ;;
     --bot-token=*)          BOT_TOKEN="${arg#*=}" ;;
     --app-name=*)           APP_NAME="${arg#*=}" ;;
     --admin-login=*)        ADMIN_LOGIN="${arg#*=}" ;;
@@ -53,6 +58,11 @@ done
 if [[ -z "$TARGET" ]]; then
   echo "✗ target-dir required." >&2
   usage
+  exit 1
+fi
+
+if [[ "$PRESET" != "tma" && "$PRESET" != "base" ]]; then
+  echo "✗ Unknown --preset=$PRESET (expected: tma, base)" >&2
   exit 1
 fi
 
@@ -102,30 +112,32 @@ CMD+=(-m "$TEMPLATE_FILE")
 
 if [[ $DRY_RUN -eq 1 ]]; then
   echo "DRY-RUN. Would run with env:"
-  echo "  TG_APP_NAME=$APP_NAME"
+  echo "  PRESET=$PRESET"
+  echo "  APP_NAME=$APP_NAME"
   echo "  TG_BOT_TOKEN=${BOT_TOKEN:+set (${#BOT_TOKEN} chars)}"
-  echo "  TG_ADMIN_LOGIN=$ADMIN_LOGIN"
-  echo "  TG_ADMIN_PASS=*****"
+  echo "  ADMIN_LOGIN=$ADMIN_LOGIN"
+  echo "  ADMIN_PASS=*****"
   echo "Command:"
   echo "  ${CMD[*]}"
   exit 0
 fi
 
-echo "→ Generating '$APP_NAME' at $TARGET (template: $TEMPLATE_FILE)"
+echo "→ Generating '$APP_NAME' at $TARGET (preset: $PRESET, template: $TEMPLATE_FILE)"
 echo
 
 # ── exec ───────────────────────────────────────────────────────────────────
-TG_APP_NAME="$APP_NAME" \
+PRESET="$PRESET" \
+APP_NAME="$APP_NAME" \
 TG_BOT_TOKEN="$BOT_TOKEN" \
-TG_ADMIN_LOGIN="$ADMIN_LOGIN" \
-TG_ADMIN_PASS="$ADMIN_PASS" \
+ADMIN_LOGIN="$ADMIN_LOGIN" \
+ADMIN_PASS="$ADMIN_PASS" \
   "${CMD[@]}"
 
 # ── next steps ─────────────────────────────────────────────────────────────
 cat <<EOF
 
 ═══════════════════════════════════════════════════════════════════════════
-  ✅ $APP_NAME готов в $TARGET
+  ✅ $APP_NAME готов в $TARGET   (preset: $PRESET)
 ═══════════════════════════════════════════════════════════════════════════
 
 Следующие шаги:
@@ -135,6 +147,10 @@ cat <<EOF
   # 1. Поднять стек:
   ./run setup && ./run up                   # либо bin/rails db:prepare && bin/dev без докера
   ./run help                                # весь список команд
+EOF
+
+if [[ "$PRESET" == "tma" ]]; then
+  cat <<EOF
 
   # 2. Открыть HTTPS-туннель (Telegram не пускает HTTP):
   cloudflared tunnel --url http://localhost:3000
@@ -145,10 +161,22 @@ cat <<EOF
   #    URL = https://<tunnel>.trycloudflare.com/tma
 
   # 4. Открыть бот в Telegram, нажать Menu Button — должен открыться TMA.
+EOF
+fi
+
+cat <<EOF
 
 Доступы:
   Admin:  http://localhost:3000/admin       ($ADMIN_LOGIN / $ADMIN_PASS)
-  TMA:    http://localhost:3000/tma         (через HTTPS-туннель из Telegram)
+EOF
+
+# if/fi, а не `[[ ... ]] && echo`: под `set -e` ложное условие в конце списка
+# уронило бы скрипт с кодом 1 уже после успешной генерации.
+if [[ "$PRESET" == "tma" ]]; then
+  echo "  TMA:    http://localhost:3000/tma         (через HTTPS-туннель из Telegram)"
+fi
+
+cat <<EOF
 
 CRUD-генератор:
   bin/rails g tma_resource Item "title body:text"
@@ -159,9 +187,11 @@ ENV:
   Файл .env создан в $TARGET с дефолтами.
 EOF
 
-if [[ -n "$BOT_TOKEN" ]]; then
-  echo "  ✓ TG_BOT_TOKEN установлен."
-else
-  echo "  ⚠ TG_BOT_TOKEN пуст — заполни в .env, иначе initData не пройдёт."
+if [[ "$PRESET" == "tma" ]]; then
+  if [[ -n "$BOT_TOKEN" ]]; then
+    echo "  ✓ TG_BOT_TOKEN установлен."
+  else
+    echo "  ⚠ TG_BOT_TOKEN пуст — заполни в .env, иначе initData не пройдёт."
+  fi
 fi
 echo

@@ -9,6 +9,9 @@
 # создать новый TG Mini App в ~/works/my_app
 ~/works/rails_template/bin/scaffold ~/works/my_app --bot-token=123:ABC --app-name=MyApp
 
+# то же самое, но без Telegram — просто Rails + Docker + админка
+~/works/rails_template/bin/scaffold ~/works/my_app --preset=base --app-name=MyApp
+
 cd ~/works/my_app
 docker compose up        # либо bin/dev для локального запуска
 
@@ -76,21 +79,30 @@ state_machines, kaminari, searchlight, telegram-bot-ruby (incoming webhook + б�
 
 ```
 rails_template/
-├── template.rb                    # Rails app template (вызывается через `rails new -m`)
+├── template.rb                    # тонкий диспетчер: инпуты, source_paths, слои, финализация
 ├── bin/scaffold                   # обёртка: rails new + template.rb + next-steps
-├── lib/templates/files/           # статические оверлей-файлы (mirror Rails app)
-│   ├── app/components/            # Authenticator, JsonWebToken, TgAuth
-│   ├── app/controllers/           # Application, TmaController, Api::V1::Base, Admin::Base
-│   ├── app/views/                 # layouts/dashboard, components/_button|_input|_table|_sidebar
-│   ├── app/assets/stylesheets/    # design_system/tokens.css + admin.css
-│   ├── config/initializers/       # tg_app.rb (ENV-конфиг), cors.rb, admin_nav.rb
-│   ├── .dockerdev/                # dev-образ, compose.yml, Aptfile, .psqlrc, .bashrc
-│   ├── run                        # обёртка над docker compose (вместо dip)
-│   └── .githooks/pre-commit
-└── lib/generators/tma_resource/   # CRUD-генератор (копируется в lib/generators/ нового app)
-    ├── tma_resource_generator.rb
-    └── templates/                 # *.erb для модели, контроллера, view'ов
+├── lib/templates/
+│   ├── base.rb                    # слой base: гемы, копирование base/, after_bundle (БД, rspec, seed)
+│   ├── tma.rb                     # слой tma: копирование tma/, патчи по base-файлам, миграция Users
+│   ├── base/files/                # оверлей base (mirror Rails app), без Telegram
+│   │   ├── app/components/        # Authenticator, JsonWebToken
+│   │   ├── app/controllers/       # Application, Admin, Api::V1::Base, Api::V1::Admin::Base
+│   │   ├── app/views/             # layouts/{application,auth,dashboard}, admin/, shared/
+│   │   ├── app/assets/stylesheets/design_system/  # tokens.css + admin.css
+│   │   ├── lib/generators/tma_resource/           # CRUD-генератор (едет в новый app)
+│   │   ├── .dockerdev/            # dev-образ, compose.yml, Aptfile, .psqlrc, .bashrc
+│   │   ├── run                    # обёртка над docker compose (вместо dip)
+│   │   └── .githooks/pre-commit
+│   ├── base/erb/                  # .env.example.erb (рендерится через `template`)
+│   ├── tma/files/                 # оверлей tma: TgAuth, TmaController, User, /tma-вьюхи, tma.js
+│   ├── tma/erb/                   # tg_app.rb.erb
+│   └── tma/snippets/              # куски, которые дописываются в base-файлы (routes, tokens.css)
 ```
+
+Порядок применения: `template.rb` → `base.rb` → `tma.rb` (если preset=tma) → финализация
+(git init + commit + next-steps). `source_paths` определяется **только** в `template.rb`:
+`apply` — это `instance_eval` на том же генераторе, и второе определение переписало бы
+первое задним числом, включая `after_bundle`-блоки.
 
 ## Verification
 
