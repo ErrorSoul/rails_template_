@@ -1,0 +1,16 @@
+{
+  "compactCustomInstructions": "When compressing, preserve in priority order:\n- V2_PLAN.md is the source of truth for v2 architecture; HANDOFF.md for repo state. Do NOT paraphrase their §0 verified facts — say 'read V2_PLAN.md'.\n- Decision delta (2026-08-14): single React 19 + TS + Tailwind v4 stack for BOTH admin and TMA. Svelte dropped, alpha/beta/gamma closed.\n- Architecture decisions (NEVER summarize)\n- Modified files and their key changes\n- Current verification status (pass/fail)\n- Open TODOs and rollback notes (V2_PLAN.md sec 4)\n- User feedback / corrections from this session\nTool outputs can be dropped, keep only pass/fail signal.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/git-guard.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
