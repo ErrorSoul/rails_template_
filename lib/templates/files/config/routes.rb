@@ -1,17 +1,17 @@
 Rails.application.routes.draw do
   # Health check (for load balancers, k8s liveness probes, dev sanity)
-  get '/up', to: 'rails/health#show', as: :rails_health_check
+  get "/up", to: "rails/health#show", as: :rails_health_check
 
-  root to: redirect('/tma')
+  root to: redirect("/tma")
 
   # Telegram Mini App shell — single HTML entry that boots telegram-web-app.js
-  get  '/tma',           to: 'tma#index'
+  get "/tma", to: "tma#index"
 
   # Admin panel (server-rendered ERB + Stimulus)
-  get  '/admin/login',    to: 'admin#login',        as: :admin_login
-  post '/admin/login',    to: 'admin#authenticate', as: :admin_authenticate
-  delete '/admin/logout', to: 'admin#logout',       as: :admin_logout
-  get  '/admin',          to: 'admin#index',        as: :admin_root
+  get "/admin/login",     to: "admin#login",        as: :admin_login
+  post "/admin/login",    to: "admin#authenticate", as: :admin_authenticate
+  delete "/admin/logout", to: "admin#logout",       as: :admin_logout
+  get "/admin",           to: "admin#index",        as: :admin_root
 
   namespace :admin do
     resources :superusers

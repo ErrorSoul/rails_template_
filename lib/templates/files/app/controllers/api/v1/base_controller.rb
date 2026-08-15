@@ -11,7 +11,7 @@ module Api
       protected
 
       def check_auth
-        json_response({ error: 'unauthorized' }, :unauthorized) and return unless current_user
+        json_response({ error: "unauthorized" }, :unauthorized) and return unless current_user
       end
 
       def current_user

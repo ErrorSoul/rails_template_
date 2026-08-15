@@ -17,7 +17,7 @@ module Admin
     def create
       @<%= singular_name %> = <%= class_name %>.new(resource_params)
       if @<%= singular_name %>.save
-        redirect_to admin_<%= singular_name %>_path(@<%= singular_name %>), notice: 'Создан'
+        redirect_to admin_<%= singular_name %>_path(@<%= singular_name %>), notice: "Создан"
       else
         render :new, status: :unprocessable_entity
       end
@@ -27,7 +27,7 @@ module Admin
 
     def update
       if @<%= singular_name %>.update(resource_params)
-        redirect_to admin_<%= singular_name %>_path(@<%= singular_name %>), notice: 'Обновлён'
+        redirect_to admin_<%= singular_name %>_path(@<%= singular_name %>), notice: "Обновлён"
       else
         render :edit, status: :unprocessable_entity
       end
@@ -35,7 +35,7 @@ module Admin
 
     def destroy
       @<%= singular_name %>.destroy
-      redirect_to admin_<%= plural_name %>_path, notice: 'Удалён'
+      redirect_to admin_<%= plural_name %>_path, notice: "Удалён"
     end
 
     private

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails/generators/named_base'
+require "rails/generators/named_base"
 
 # Usage: bin/rails g tma_resource Item "title body:text price:integer"
 #
@@ -10,21 +10,21 @@ require 'rails/generators/named_base'
 # Ported and simplified from ~/works/cookware.me/lib/generators/genya/genya_generator.rb.
 # Differences: ERB views (not React), no API controllers (admin only), uses design_system CSS classes.
 class TmaResourceGenerator < Rails::Generators::NamedBase
-  source_root File.expand_path('templates', __dir__)
+  source_root File.expand_path("templates", __dir__)
 
-  argument :attrs_string, type: :string, default: '',
+  argument :attrs_string, type: :string, default: "",
                           desc: 'Attribute list, e.g. "title body:text price:integer". Default type is string.'
 
   def normalize_attrs
     @attrs = attrs_string.to_s.split(/\s+/).reject(&:empty?).map do |entry|
-      n, t = entry.split(':')
-      { name: n, type: t || 'string' }
+      n, t = entry.split(":")
+      { name: n, type: t || "string" }
     end
   end
 
   def generate_model
-    args = @attrs.map { |a| "#{a[:name]}:#{a[:type]}" }.join(' ')
-    generate 'model', "#{class_name} #{args}".strip
+    args = @attrs.map { |a| "#{a[:name]}:#{a[:type]}" }.join(" ")
+    generate "model", "#{class_name} #{args}".strip
   end
 
   def add_validations
@@ -34,7 +34,7 @@ class TmaResourceGenerator < Rails::Generators::NamedBase
   end
 
   def create_admin_controller
-    template 'admin_controller.rb.erb', "app/controllers/admin/#{plural_name}_controller.rb"
+    template "admin_controller.rb.erb", "app/controllers/admin/#{plural_name}_controller.rb"
   end
 
   def create_admin_views
@@ -44,15 +44,15 @@ class TmaResourceGenerator < Rails::Generators::NamedBase
   end
 
   def add_admin_route
-    inject_into_file 'config/routes.rb',
+    inject_into_file "config/routes.rb",
                      "    resources :#{plural_name}\n",
                      before: "    # <!-- TMA_RESOURCE_ADMIN_ROUTES -->"
   end
 
   def add_sidebar_entry
-    inject_into_file 'app/helpers/application_helper.rb',
-                     "      { label: '#{class_name.pluralize}', path: '/admin/#{plural_name}', icon: '📦' },\n",
-                     before: '      # <!-- TMA_RESOURCE_NAV -->'
+    inject_into_file "app/helpers/application_helper.rb",
+                     %(      { label: "#{class_name.pluralize}", path: "/admin/#{plural_name}", icon: "📦" },\n),
+                     after: "      # <!-- TMA_RESOURCE_NAV -->\n"
   end
 
   private

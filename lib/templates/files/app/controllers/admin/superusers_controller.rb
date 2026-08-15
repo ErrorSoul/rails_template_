@@ -17,7 +17,7 @@ module Admin
     def create
       @superuser = Superuser.new(superuser_params)
       if @superuser.save
-        redirect_to admin_superuser_path(@superuser), notice: 'Создан'
+        redirect_to admin_superuser_path(@superuser), notice: "Создан"
       else
         render :new, status: :unprocessable_entity
       end
@@ -29,7 +29,7 @@ module Admin
       attrs = superuser_params
       attrs.delete(:password) if attrs[:password].blank?
       if @superuser.update(attrs)
-        redirect_to admin_superuser_path(@superuser), notice: 'Обновлён'
+        redirect_to admin_superuser_path(@superuser), notice: "Обновлён"
       else
         render :edit, status: :unprocessable_entity
       end
@@ -37,7 +37,7 @@ module Admin
 
     def destroy
       @superuser.destroy
-      redirect_to admin_superusers_path, notice: 'Удалён'
+      redirect_to admin_superusers_path, notice: "Удалён"
     end
 
     private

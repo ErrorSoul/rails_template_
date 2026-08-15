@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'openssl'
-require 'uri'
-require 'json'
+require "openssl"
+require "uri"
+require "json"
 
 # Verifies Telegram WebApp initData per
 # https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
@@ -21,7 +21,7 @@ class TgAuth
     def ok?; ok; end
   end
 
-  def self.verify(init_data, bot_token: ENV.fetch('TG_BOT_TOKEN'))
+  def self.verify(init_data, bot_token: ENV.fetch("TG_BOT_TOKEN"))
     new(init_data, bot_token).verify
   end
 
@@ -31,24 +31,24 @@ class TgAuth
   end
 
   def verify
-    return failure('empty initData') if @init_data.empty?
-    return failure('missing TG_BOT_TOKEN') if @bot_token.empty?
+    return failure("empty initData") if @init_data.empty?
+    return failure("missing TG_BOT_TOKEN") if @bot_token.empty?
 
     pairs = URI.decode_www_form(@init_data).to_h
-    received = pairs.delete('hash')
-    return failure('missing hash') unless received
+    received = pairs.delete("hash")
+    return failure("missing hash") unless received
 
-    auth_date = pairs['auth_date']&.to_i
-    return failure('missing auth_date') unless auth_date && auth_date.positive?
-    return failure('stale auth_date')   if Time.now.to_i - auth_date > AUTH_TTL
+    auth_date = pairs["auth_date"]&.to_i
+    return failure("missing auth_date") unless auth_date && auth_date.positive?
+    return failure("stale auth_date")   if Time.now.to_i - auth_date > AUTH_TTL
 
     data_check_string = pairs.sort.map { |k, v| "#{k}=#{v}" }.join("\n")
-    secret_key   = OpenSSL::HMAC.digest('SHA256', 'WebAppData', @bot_token)
-    expected_hex = OpenSSL::HMAC.hexdigest('SHA256', secret_key, data_check_string)
+    secret_key   = OpenSSL::HMAC.digest("SHA256", "WebAppData", @bot_token)
+    expected_hex = OpenSSL::HMAC.hexdigest("SHA256", secret_key, data_check_string)
 
-    return failure('bad hash') unless ActiveSupport::SecurityUtils.secure_compare(expected_hex, received)
+    return failure("bad hash") unless ActiveSupport::SecurityUtils.secure_compare(expected_hex, received)
 
-    user = pairs['user'] ? JSON.parse(pairs['user']) : {}
+    user = pairs["user"] ? JSON.parse(pairs["user"]) : {}
     Result.new(ok: true, user: user)
   rescue JSON::ParserError, ArgumentError, KeyError => e
     failure("parse error: #{e.message}")

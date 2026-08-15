@@ -1,24 +1,11 @@
-AllCops:
-  TargetRubyVersion: 3.2
-  NewCops: enable
-  Exclude:
-    - 'bin/**/*'
-    - 'db/migrate/**/*'
-    - 'db/schema.rb'
-    - 'node_modules/**/*'
-    - 'tmp/**/*'
-    - 'vendor/**/*'
+# Omakase Ruby styling for Rails — inherit, don't replace.
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-Layout/LineLength:
-  Max: 200
+# Merge (not replace) AllCops/Exclude coming from RuboCop defaults and omakase,
+# otherwise node_modules/tmp/vendor would start being linted.
+inherit_mode:
+  merge:
+    - Exclude
 
-Style/Documentation:
-  Enabled: false
-
-Metrics/MethodLength:
-  Max: 25
-
-Metrics/BlockLength:
-  Exclude:
-    - 'config/**/*'
-    - 'spec/**/*'
+# TargetRubyVersion is intentionally unset: RuboCop reads .ruby-version,
+# so the target follows the app instead of drifting behind it.

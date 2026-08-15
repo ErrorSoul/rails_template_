@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class JsonWebToken
-  ALGORITHM = 'HS256'
+  ALGORITHM = "HS256"
 
   def self.encode(payload, exp = 7.days.from_now)
     JWT.encode(payload.merge(exp: exp.to_i), secret, ALGORITHM)

@@ -53,7 +53,7 @@ application do
     config.generators do |g|
       g.template_engine :erb
       g.test_framework :rspec, fixture_replacement: :factory_bot
-      g.factory_bot dir: 'spec/factories'
+      g.factory_bot dir: "spec/factories"
       g.helper false
       g.assets false
     end
@@ -64,22 +64,25 @@ end
 remove_file 'app/controllers/application_controller.rb'
 remove_file 'app/views/layouts/application.html.erb'
 
-directory 'app/components'
-directory 'app/controllers'
-directory 'app/views'
-directory 'app/assets/stylesheets/design_system'
-directory 'app/javascript'
-directory 'app/helpers'
-directory 'app/models'
-directory 'config/initializers'
-directory 'lib/generators'
+# force: true everywhere — Rails 8.1 ships its own versions of several of these files
+# (application_helper.rb, Dockerfile, .rubocop.yml, .dockerignore). Without force Thor asks
+# "Overwrite ...? [Ynaqdhm]" and the scaffold hangs with stdin closed (CI, agents).
+directory 'app/components', force: true
+directory 'app/controllers', force: true
+directory 'app/views', force: true
+directory 'app/assets/stylesheets/design_system', force: true
+directory 'app/javascript', force: true
+directory 'app/helpers', force: true
+directory 'app/models', force: true
+directory 'config/initializers', force: true
+directory 'lib/generators', force: true
 copy_file 'config/routes.rb', force: true
-copy_file 'Procfile.dev'
-copy_file 'Dockerfile'
-copy_file 'docker-compose.yml'
-copy_file '.rubocop.yml'
-copy_file '.dockerignore'
-copy_file '.githooks/pre-commit'
+copy_file 'Procfile.dev', force: true
+copy_file 'Dockerfile', force: true
+copy_file 'docker-compose.yml', force: true
+copy_file '.rubocop.yml', force: true
+copy_file '.dockerignore', force: true
+copy_file '.githooks/pre-commit', force: true
 
 # ---- ERB-rendered files (use @app_display_name etc.) ----------------------
 template '.env.example.erb', '.env.example'

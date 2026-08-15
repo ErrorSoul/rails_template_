@@ -10,7 +10,7 @@ module Api
         protected
 
         def check_auth_admin
-          json_response({ error: 'unauthorized' }, :unauthorized) and return unless current_superuser
+          json_response({ error: "unauthorized" }, :unauthorized) and return unless current_superuser
         end
       end
     end

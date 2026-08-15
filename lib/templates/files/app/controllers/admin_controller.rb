@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AdminController < ApplicationController
-  layout 'dashboard'
+  layout "dashboard"
   before_action :require_admin, except: %i[login authenticate]
 
   def index
@@ -9,7 +9,7 @@ class AdminController < ApplicationController
   end
 
   def login
-    render layout: 'auth'
+    render layout: "auth"
   end
 
   def authenticate
@@ -18,8 +18,8 @@ class AdminController < ApplicationController
       Authenticator.login(cookies, su)
       redirect_to admin_root_path
     else
-      flash.now[:error] = 'Неверный логин или пароль'
-      render :login, layout: 'auth', status: :unauthorized
+      flash.now[:error] = "Неверный логин или пароль"
+      render :login, layout: "auth", status: :unauthorized
     end
   end
 

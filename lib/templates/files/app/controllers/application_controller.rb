@@ -14,6 +14,6 @@ class ApplicationController < ActionController::Base
   end
 
   def tg_app_name
-    ENV.fetch('TG_APP_NAME', 'TMA')
+    ENV.fetch("TG_APP_NAME", "TMA")
   end
 end

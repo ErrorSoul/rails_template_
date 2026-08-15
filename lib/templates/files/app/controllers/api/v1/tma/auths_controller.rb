@@ -13,14 +13,14 @@ module Api
           return json_response({ error: result.error }, :unauthorized) unless result.ok?
 
           data = result.user
-          user = User.find_or_initialize_by(telegram_id: data['id'])
+          user = User.find_or_initialize_by(telegram_id: data["id"])
           user.assign_attributes(
-            first_name:    data['first_name'],
-            last_name:     data['last_name'],
-            username:      data['username'],
-            language_code: data['language_code'],
-            is_premium:    !!data['is_premium'],
-            photo_url:     data['photo_url']
+            first_name:    data["first_name"],
+            last_name:     data["last_name"],
+            username:      data["username"],
+            language_code: data["language_code"],
+            is_premium:    !!data["is_premium"],
+            photo_url:     data["photo_url"]
           )
           user.save!
           Authenticator.login(cookies, user)

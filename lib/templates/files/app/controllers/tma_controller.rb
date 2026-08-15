@@ -6,7 +6,7 @@
 # requests are authenticated via Authenticator.current_user(cookies).
 class TmaController < ApplicationController
   skip_before_action :verify_authenticity_token, raise: false
-  layout 'tma'
+  layout "tma"
 
   def index; end
 end

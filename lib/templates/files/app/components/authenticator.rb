@@ -23,24 +23,24 @@ class Authenticator
     end
 
     def current_user(cookies)
-      decode(cookies.signed[USER_COOKIE], expected: 'User')
+      decode(cookies.signed[USER_COOKIE], expected: "User")
     end
 
     def current_superuser(cookies)
-      decode(cookies.signed[ADMIN_COOKIE], expected: 'Superuser')
+      decode(cookies.signed[ADMIN_COOKIE], expected: "Superuser")
     end
 
     private
 
     def cookie_for(principal)
-      principal.is_a?(Superuser) ? [ADMIN_COOKIE, ADMIN_TTL] : [USER_COOKIE, USER_TTL]
+      principal.is_a?(Superuser) ? [ ADMIN_COOKIE, ADMIN_TTL ] : [ USER_COOKIE, USER_TTL ]
     end
 
     def decode(token, expected:)
       return nil unless token
       payload = JsonWebToken.decode(token)
-      return nil unless payload && payload['type'] == expected
-      expected.safe_constantize&.find_by(id: payload['id'])
+      return nil unless payload && payload["type"] == expected
+      expected.safe_constantize&.find_by(id: payload["id"])
     end
   end
 end

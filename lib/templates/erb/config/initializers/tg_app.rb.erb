@@ -7,7 +7,7 @@ required = %w[TG_BOT_TOKEN]
 missing  = required.reject { |k| ENV[k].present? }
 
 if missing.any? && Rails.env.development?
-  warn "[tg_app] Missing ENV: #{missing.join(', ')} — set them in .env (initData verification will fail without them)"
+  warn "[tg_app] Missing ENV: #{missing.join(", ")} — set them in .env (initData verification will fail without them)"
 end
 
-raise "[tg_app] Missing ENV in production: #{missing.join(', ')}" if missing.any? && Rails.env.production?
+raise "[tg_app] Missing ENV in production: #{missing.join(", ")}" if missing.any? && Rails.env.production?
