@@ -1,4 +1,10 @@
 {
+  // Скрипта `typecheck` намеренно нет: вендоренный ds/ не проходит `tsc` — 5 настоящих
+  // расхождений пропсов (Input/Divider не объявляют `style`, SearchInput — `onSearch`).
+  // Они ЕСТЬ И В АПСТРИМЕ: `tsc -p tsconfig.app.json` в ~/works/design_system/app даёт
+  // те же пять TS2322 (плюс 34 TS6133 от noUnusedLocals). Чинить надо там, а не здесь:
+  // правка снапшота ломает контракт «побайтово равен донору» (V2_PLAN §4.2).
+  // Этот tsconfig нужен редактору и для `jsx: react-jsx`, а не для гейта.
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
@@ -11,7 +17,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./app/frontend/*"],
