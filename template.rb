@@ -111,6 +111,12 @@ after_bundle do
   # RSpec
   generate 'rspec:install'
   append_to_file '.rspec', "--format documentation\n"
+  # rspec-rails ships this commented out. Without it specs get no `type:` metadata,
+  # and shoulda-matchers — which hooks on `type: :model` — silently provides nothing:
+  # `validate_presence_of` raises NoMethodError.
+  gsub_file 'spec/rails_helper.rb',
+            '# config.infer_spec_type_from_file_location!',
+            'config.infer_spec_type_from_file_location!'
   inject_into_file 'spec/rails_helper.rb', after: "require 'rspec/rails'\n" do
     <<~RUBY
       require 'database_cleaner/active_record'

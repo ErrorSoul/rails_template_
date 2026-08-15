@@ -28,9 +28,18 @@ class TmaResourceGenerator < Rails::Generators::NamedBase
   end
 
   def add_validations
-    return if @attrs.empty?
-    lines = @attrs.map { |a| "  validates :#{a[:name]}, presence: true" }.join("\n") + "\n"
+    # Booleans are excluded on purpose: `presence: true` rejects `false`, so a boolean
+    # column would be impossible to set to false.
+    validated = @attrs.reject { |a| a[:type] == "boolean" }
+    return if validated.empty?
+    lines = validated.map { |a| "  validates :#{a[:name]}, presence: true" }.join("\n") + "\n"
     inject_into_class "app/models/#{singular_name}.rb", class_name, lines
+  end
+
+  # Overwrites the stub rspec-rails emits from `generate "model"`, which is `pending`
+  # and would leave every freshly generated project with a yellow suite.
+  def replace_model_spec
+    template "model_spec.rb.erb", "spec/models/#{singular_name}_spec.rb", force: true
   end
 
   def create_admin_controller

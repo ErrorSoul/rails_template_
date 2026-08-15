@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe <%= class_name %> do
+  it "is valid with the attributes the factory provides" do
+    expect(build(:<%= singular_name %>)).to be_valid
+  end
+<% attrs.reject { |a| a[:type] == "boolean" }.each do |a| -%>
+
+  it { is_expected.to validate_presence_of(:<%= a[:name] %>) }
+<% end -%>
+end

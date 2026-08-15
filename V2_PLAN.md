@@ -292,9 +292,12 @@ design_system DataTable полностью клиентский (§0.4). Вар�
 
 | Берём | Не берём |
 |---|---|
-| `app/src/components/` — 860 KB, 86 `.tsx` + 83 теста | `app/src/pages/`, `showcase/`, `preview/`, `App.tsx`, `main.tsx` |
+| `app/src/components/` — 860 KB, 84 компонента + 83 теста | `app/src/pages/`, `showcase/`, `preview/`, `App.tsx`, `main.tsx` |
 | `app/src/utils/cn.ts` | `assets/` |
 | `app/src/tokens/index.css` | |
+
+(84 компонента = 84 `index.tsx`; `.tsx`-файлов 86, лишние два — `ToastContainer`/`ToastContext`
+внутри организма Toast. Числа в §0 и здесь сходятся, апстрим не рос.)
 
 Проверено `grep` по `components/`: внешних импортов там ровно четыре —
 `react`, `react-dom`, `vitest`, `@testing-library/*`. **`react-router-dom` не импортирует ни один

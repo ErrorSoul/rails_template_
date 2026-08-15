@@ -25,6 +25,18 @@ NC='\033[0m'
 compose() { docker compose -f "$COMPOSE_FILE" "$@"; }
 web() { compose exec rails "$@"; }
 
+# Имя базы берём из database.yml, а не из имени папки: Rails прогоняет имя приложения
+# через underscore, поэтому папка NameProbe даёт базу name_probe_development,
+# а не nameprobe_development.
+dev_database() {
+  local db=""
+  if [ -f "$ROOT_DIR/config/database.yml" ]; then
+    db="$(awk '/^development:/ {f=1; next} f && /^[a-z]/ {exit} f && $1 == "database:" {print $2; exit}' \
+          "$ROOT_DIR/config/database.yml")"
+  fi
+  echo "${db:-${PROJECT_NAME}_development}"
+}
+
 help() {
   echo ""
   echo -e "${BOLD}${COMPOSE_PROJECT_NAME} — dev-окружение в Docker${NC}"
@@ -44,7 +56,7 @@ help() {
   echo "  ./run console          — Rails console"
   echo "  ./run rails <args>     — bin/rails <args>, напр. ./run rails db:migrate"
   echo "  ./run gen <args>       — bin/rails generate <args>"
-  echo "  ./run psql [база]      — psql (по умолчанию ${PROJECT_NAME}_development)"
+  echo "  ./run psql [база]      — psql (по умолчанию dev-база из config/database.yml)"
   echo ""
   echo -e "${CYAN}Зависимости:${NC}"
   echo "  ./run bundle <args>    — bundle <args>, напр. ./run bundle install"
@@ -129,7 +141,7 @@ case "${1:-}" in
 
   psql)
     shift
-    compose run --rm rails psql -d "${1:-${PROJECT_NAME}_development}"
+    compose run --rm rails psql -d "${1:-$(dev_database)}"
     ;;
 
   # ── Зависимости ─────────────────────────────────────────────────────────────
