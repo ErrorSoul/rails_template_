@@ -301,7 +301,7 @@ design_system DataTable полностью клиентский (§0.4). Вар�
 |---|---|---|
 | 0 | ✅ **Сделано 2026-08-15** — `1d73adb` (v1 baseline) + `2f0ed3e` (решение δ) | — |
 | 1 | ✅ **Сделано 2026-08-15** — прогон v1, результаты в §0.5 | — |
-| 1.5 | Починить §0.5-A (`force: true` в `template.rb`) и §0.5-C (`.rubocop.yml`: inherit_gem omakase, plugins, TargetRubyVersion 3.4). Мелко, не блокируется ничем, снимает грабли на всех следующих шагах | — |
+| 1.5 | ✅ **Сделано 2026-08-15** — `b9812f6`. §0.5-A и §0.5-C закрыты. Дополнительно: найден пятый интерактивный вопрос от `importmap:install` (прятался за exit 0), заглушка `app/javascript/application.js` удалена. Rubocop 0 offenses **без единого Exclude**. Побочный эффект: маркер `TMA_RESOURCE_NAV` уехал в начало `admin_nav_items` (`Style/TrailingCommaInArrayLiteral`) — сгенерированные ресурсы теперь в меню **выше** Superusers; шагу 7 это ограничение соблюдать | — |
 | 2 | Docker-слой: `.dockerdev/`, compose с healthcheck'ами, Postgres без хостового порта, `./run` (форк `lave/lave`) | — |
 | 3 | Расщепить `template.rb` на base + tma overlay | — |
 | 4 | Решить §4.2, положить дерево design_system в шаблон + `bin/sync_ds` | §4.2 |
