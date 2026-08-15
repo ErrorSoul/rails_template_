@@ -13,7 +13,7 @@ x-app: &app
     args:
       RUBY_VERSION: '3.4.5'
       PG_MAJOR: '16'
-      NODE_MAJOR: '22'
+      NODE_MAJOR: '24'
       YARN_VERSION: '1.22.22'
       BUNDLER_VERSION: '2.6.9'
   image: ${COMPOSE_PROJECT_NAME:-app}-dev:1.0.0
@@ -95,6 +95,9 @@ services:
       postgres:
         condition: service_healthy
 
+  # Имя сервиса `vite` продублировано в vite.config.ts → server.allowedHosts:
+  # Rails ходит сюда по этому имени, а Vite отбивает незнакомый Host заголовок 403-м.
+  # Переименуешь сервис — правь и конфиг, иначе все ассеты в докере станут 403.
   vite:
     <<: *app
     command: bash -c "bin/vite dev"

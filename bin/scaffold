@@ -98,6 +98,20 @@ if ! command -v pg_isready >/dev/null 2>&1; then
   echo "⚠ postgresql client (pg_isready) not found. Если будешь крутить локально (не в docker), поставь postgres."
 fi
 
+# Фронтенд-стек (vitest 4, jsdom 30) объявляет engines "^22.22 || ^24.15 || >=26":
+# нечётные линии Node — не LTS и выпадают из спеки. В dev-образе стоит Node 24,
+# так что докер-путь не зависит от того, что стоит на хосте.
+if command -v node >/dev/null 2>&1; then
+  NODE_V="$(node -v | sed 's/^v//')"
+  NODE_MAJ="${NODE_V%%.*}"
+  if [[ "$NODE_MAJ" -lt 22 || $((NODE_MAJ % 2)) -eq 1 ]]; then
+    echo "⚠ Node $NODE_V вне спеки фронтенд-стека (нужен 22.22+ или 24.15+)."
+    echo "  Скаффолд пройдёт, но 'yarn install' на хосте упадёт — собирай фронт в докере: ./run setup"
+  fi
+else
+  echo "⚠ node не найден — фронтенд собирается только в докере (./run setup)."
+fi
+
 # ── defaults ───────────────────────────────────────────────────────────────
 APP_BASENAME="$(basename "$TARGET")"
 [[ -z "$APP_NAME" ]] && APP_NAME="$APP_BASENAME"

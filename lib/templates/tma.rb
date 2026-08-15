@@ -13,8 +13,7 @@ gem 'rack-cors'
 directory 'tma/files/app/components', 'app/components', force: true
 directory 'tma/files/app/controllers', 'app/controllers', force: true
 directory 'tma/files/app/views', 'app/views', force: true
-directory 'tma/files/app/assets/stylesheets/design_system', 'app/assets/stylesheets/design_system', force: true
-directory 'tma/files/app/javascript', 'app/javascript', force: true
+directory 'tma/files/app/frontend', 'app/frontend', force: true
 directory 'tma/files/app/models', 'app/models', force: true
 directory 'tma/files/config/initializers', 'config/initializers', force: true
 
@@ -31,8 +30,6 @@ inject_into_file 'config/routes.rb',
                  after: "      # <!-- PRESET_API_ROUTES -->\n"
 gsub_file 'config/routes.rb', 'root to: redirect("/admin")', 'root to: redirect("/tma")'
 
-append_to_file 'app/assets/stylesheets/design_system/tokens.css',
-               "\n" + File.read(find_in_source_paths('tma/snippets/tokens_tg_theme.css'))
 append_to_file 'app/views/admin/login.html.erb',
                File.read(find_in_source_paths('tma/snippets/login_footer.html.erb'))
 append_to_file '.env.example', <<~ENV

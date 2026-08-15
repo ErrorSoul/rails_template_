@@ -18,6 +18,9 @@
 - `lib/templates/tma.rb` — слой tma: копирование `tma/`, патчи по уже положенным base-файлам,
   миграция Users. Накатывается только при `PRESET=tma` (дефолт).
 - `lib/templates/{base,tma}/files/` — оверлеи: пути 1-в-1 к Rails-приложению. Логики тут нет.
+- `lib/templates/base/files/app/frontend/ds/` — **вендоренный снапшот design_system, не наш код.**
+  Не править: любая правка делает `bin/sync_ds` нечитаемым навсегда (§4.2, §4.1). Нужен другой
+  функционал — обёртка рядом, в `components/`.
 - `lib/templates/{base,tma}/erb/` — файлы, рендерящиеся через `template '...', '...'`
 - `lib/templates/tma/snippets/` — куски, которые дописываются в base-файлы (`append_to_file`,
   `inject_into_file`). Нужны, чтобы слои оставались декларативными, без heredoc'ов с контентом.
@@ -41,6 +44,9 @@
   (`base/files/...`, `tma/files/...`) — иначе оверлей молча проигрывает base'у.
 - `after_bundle` можно звать сколько угодно раз из любого файла: все блоки выполняются
   в порядке регистрации. Отсюда порядок base → tma → финализация.
+- **`run` при ненулевом коде обрывает генератор целиком.** Скаффолд молча заканчивался на
+  середине — без `git init`, коммита и next-steps, exit 1. Для команд, чей провал допустим
+  (`yarn install` на хосте вне спеки), — только `system`, с явным сообщением.
 
 ## Coding Conventions
 - В шаблонных файлах (`lib/templates/{base,tma}/files/`) — используем те же правила, что и в продакшен Rails: `frozen_string_literal: true`, `ApplicationRecord`, `ActionController::API` для API-контроллеров.
@@ -84,13 +90,39 @@ bundle exec rspec && bundle exec rubocop
 curl -sf localhost:3000/up              # после старта сервера
 #   tma:  /admin/login → 200, /tma → 200, / → 301 на /tma
 #   base: /admin/login → 200, /tma → 404, / → 301 на /admin
+# 4b. Фронтенд: логин по-настоящему (React-остров за auth — без входа проверка вырождается
+#     в «302, значит работает»), затем проверить в разметке admin-react-root и бандл admin.
+yarn test                               # vitest: 754 теста, 0 падений
+#     На хосте с нечётным Node нужен `yarn install --ignore-engines` — это костыль ГЕЙТА,
+#     в шаблон его не тащить: в докере Node 24 и стек в спеке.
 # 5. Только для base — остатки Telegram:
 grep -rniIE 'telegram|initdata|bot_token|\btma\b|TG_' . --exclude-dir=.git --exclude=Gemfile.lock \
   | grep -v tma_resource        # должно быть ПУСТО
 #    allowlist ровно один: имя генератора tma_resource (его целиком заменяет шаг 7).
 ```
 
-Готовый скрипт обоих прогонов — `scratchpad/gate.sh` (пишется заново каждую сессию, в репо не лежит).
+```bash
+# 5. Docker — ОБЯЗАТЕЛЕН, если правил фронтенд, compose, Dockerfile или ./run.
+#    Хостовый гейт этого не заменяет: без запущенного dev-сервера Rails отдаёт
+#    собранный манифест статикой, и весь путь через ViteRuby::DevServerProxy
+#    остаётся непроверенным. Так пропускается 403 от Vite на каждый ассет —
+#    страница при этом честные 200 и пустой React-корень.
+./run setup && ./run up
+#    postgres/rails/vite → healthy (docker inspect ... .State.Health.Status)
+#    curl :3000/tma → 200, И САМ АССЕТ из разметки → 200
+#    curl :3036 → 000 (наружу не проброшен)
+./run vitest                            # 754 теста внутри контейнера, Node 24
+./run down -v                           # ОБЯЗАТЕЛЬНО -v: иначе volume'ы переживут уборку
+```
+
+Готовые скрипты — `scratchpad/gate.sh` и `scratchpad/docker_check.sh` (пишутся заново каждую
+сессию, в репо не лежат).
+
+**Уборка после докера — отдельная ловушка.** `docker compose down` без `COMPOSE_PROJECT_NAME`
+гасит проект с именем каталога compose-файла (`dockerdev`), а не твой — контейнеры и volume'ы
+остаются жить. Ходить только через `./run`. Файлы в `node_modules/`, `public/vite/`, `tmp/cache/`
+принадлежат root'у из контейнера, обычный `rm -rf` их не возьмёт:
+`docker run --rm -v /tmp:/host alpine:3 sh -c 'rm -rf /host/<каталог>'`.
 
 Уборка за собой обязательна: `dropdb gate_app_development gate_app_test base_app_development
 base_app_test && rm -rf /tmp/gate_tma /tmp/gate_base`.

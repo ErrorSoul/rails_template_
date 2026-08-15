@@ -7,6 +7,9 @@
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <%= stylesheet_link_tag "design_system/tokens", "design_system/admin", media: "all" %>
     <%= javascript_include_tag "application", defer: true %>
+    <%= vite_client_tag %>
+    <%= vite_react_refresh_tag %>
+    <%= vite_javascript_tag "admin.tsx" %>
   </head>
   <body>
     <div class="admin-shell">
@@ -15,6 +18,7 @@
         <header class="admin-topbar">
           <h1><%= content_for?(:page_title) ? yield(:page_title) : app_display_name %></h1>
           <div>
+            <div id="admin-react-root"></div>
             <% if current_superuser %>
               <span><%= current_superuser.login %></span>
               <%= button_to "Выйти", admin_logout_path, method: :delete, class: "btn btn--ghost btn--sm", form: { style: "display:inline" } %>

@@ -13,7 +13,7 @@
 ~/works/rails_template/bin/scaffold ~/works/my_app --preset=base --app-name=MyApp
 
 cd ~/works/my_app
-docker compose up        # либо bin/dev для локального запуска
+./run setup && ./run up  # либо bin/dev для локального запуска
 
 # открыть HTTPS-туннель и привязать к боту
 cloudflared tunnel --url http://localhost:3000
@@ -26,6 +26,7 @@ cloudflared tunnel --url http://localhost:3000
 - **Админка** — серверный ERB + Stimulus, layout с sidebar / topbar / table. Стили — токены из `~/works/design_system` (CSS-переменные, маппятся на `tg-theme-*`).
 - **CRUD-генератор** — `bin/rails g tma_resource Foo "name slug:string"` создаёт модель, миграцию, admin-контроллер, ERB-views (index/show/new/edit), роут и пункт в admin sidebar.
 - **TMA shell** — `/tma` отдаёт HTML с `telegram-web-app.js`, передаёт `initData` в `POST /api/v1/tma/auth`, кладёт юзера в JWT-cookie.
+- **Фронтенд** — Vite 8 + React 19 + TypeScript + Tailwind v4, два энтрипоинта (`admin.tsx`, `tma.tsx`). Компоненты — вендоренный снапшот `~/works/design_system` в `app/frontend/ds/` (84 штуки + 83 теста), тесты гоняет Vitest.
 - **Dev-стек** — `.dockerdev/` («Ruby on Whales» без гема `dip`) + обёртка `./run`, `Procfile.dev`, `.githooks/pre-commit`, RSpec + factory_bot + database_cleaner.
 
 ### `./run` — вход в dev-окружение
@@ -36,7 +37,8 @@ cloudflared tunnel --url http://localhost:3000
 ./run console                # Rails console          ./run psql [база]
 ./run rails db:migrate       # bin/rails <args>       ./run gen tma_resource Item "title"
 ./run test / ./run lint      # rspec / rubocop        ./run logs [сервис]
-./run help                   # полный список (15 команд)
+./run vitest                 # тесты фронтенда (ds/ + свои компоненты)
+./run help                   # полный список (16 команд)
 ```
 
 Наружу открыт **только `:3000`**. Postgres и dev-сервер Vite портов на хост не пробрасывают —
@@ -97,9 +99,10 @@ rails_template/
 │   │   ├── run                    # обёртка над docker compose (вместо dip)
 │   │   └── .githooks/pre-commit
 │   ├── base/erb/                  # .env.example.erb (рендерится через `template`)
-│   ├── tma/files/                 # оверлей tma: TgAuth, TmaController, User, /tma-вьюхи, tma.js
+│   ├── tma/files/                 # оверлей tma: TgAuth, TmaController, User, /tma-вьюха,
+│   │                              # app/frontend/{entrypoints/tma.tsx,components/tma,styles}
 │   ├── tma/erb/                   # tg_app.rb.erb
-│   └── tma/snippets/              # куски, которые дописываются в base-файлы (routes, tokens.css)
+│   └── tma/snippets/              # куски, дописываемые в base-файлы (routes, футер логина)
 ```
 
 Порядок применения: `template.rb` → `base.rb` → `tma.rb` (если preset=tma) → финализация
@@ -112,10 +115,11 @@ rails_template/
 ```bash
 ~/works/rails_template/bin/scaffold ~/works/test_tma --bot-token=test --app-name=Test
 cd ~/works/test_tma
-bundle exec rspec
-docker compose up -d
-curl -s http://localhost:3000/tma | head -3   # должен быть HTML с telegram-web-app.js
-docker compose exec web bin/rails g tma_resource Item "title body:text"
-docker compose exec web bin/rails db:migrate
+./run setup && ./run up
+./run test                                    # rspec
+./run vitest                                  # тесты фронтенда
+curl -s http://localhost:3000/tma | head -3   # HTML с telegram-web-app.js
+./run gen tma_resource Item "title body:text"
+./run rails db:migrate
 # открыть http://localhost:3000/admin/items
 ```

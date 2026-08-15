@@ -47,7 +47,7 @@ help() {
   echo -e "${CYAN}Окружение:${NC}"
   echo "  ./run setup            — bundle + yarn + db:prepare dev и test (идемпотентно)"
   echo "  ./run up               — поднять сервисы (rails + vite + postgres)"
-  echo "  ./run down             — остановить сервисы"
+  echo "  ./run down [-v]        — остановить сервисы (-v — снести и volume'ы)"
   echo "  ./run build            — пересобрать образы"
   echo "  ./run restart          — перезапустить сервисы"
   echo "  ./run logs [сервис]    — логи (по умолчанию все, ^C для выхода)"
@@ -64,6 +64,7 @@ help() {
   echo ""
   echo -e "${CYAN}Проверки:${NC}"
   echo "  ./run test [args]      — rspec"
+  echo "  ./run vitest [args]    — vitest (тесты фронтенда, включая вендоренный ds/)"
   echo "  ./run lint [args]      — rubocop"
   echo ""
   echo -e "${CYAN}Прочее:${NC}"
@@ -92,8 +93,12 @@ case "${1:-}" in
     ;;
 
   down)
+    shift
     echo -e "${YELLOW}Останавливаем сервисы...${NC}"
-    compose down
+    # Аргументы пробрасываются: `./run down -v` сносит и volume'ы (гемы, node_modules,
+    # база). Через голый `docker compose` этого делать нельзя — без COMPOSE_PROJECT_NAME
+    # он погасит проект с другим именем, а этот останется висеть.
+    compose down "$@"
     ;;
 
   build)
@@ -166,6 +171,14 @@ case "${1:-}" in
     # RAILS_ENV задаём явно: в контейнере он уже равен development, а
     # rails_helper делает ENV['RAILS_ENV'] ||= 'test' и такое значение не перебьёт.
     compose exec -e RAILS_ENV=test rails bundle exec rspec "$@"
+    ;;
+
+  vitest)
+    require_running
+    shift
+    # Через контейнер rails, а не vite: тесты не должны зависеть от того,
+    # поднялся ли dev-сервер, а node_modules — общий volume.
+    web yarn vitest run "$@"
     ;;
 
   lint)

@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <%= stylesheet_link_tag "design_system/tokens", "design_system/tma", media: "all" %>
-    <%= javascript_include_tag "tma", defer: true %>
+    <%= vite_client_tag %>
+    <%= vite_react_refresh_tag %>
+    <%= vite_javascript_tag "tma.tsx" %>
   </head>
   <body>
     <%= yield %>

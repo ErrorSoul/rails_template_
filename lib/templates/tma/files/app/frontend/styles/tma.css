@@ -1,4 +1,6 @@
-/* Telegram Mini App — minimal, picks up TG theme via tokens.css overlay */
+@import "tailwindcss";
+@import "../ds/tokens/index.css";
+@import "./tg_theme.css";
 
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }

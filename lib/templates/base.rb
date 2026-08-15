@@ -10,6 +10,8 @@ gem 'bcrypt', '~> 3.1'
 gem 'jwt'
 gem 'slim-rails'
 gem 'dotenv-rails'
+# 3.11+ обязателен: 3.0.x требует railties < 8 и на Rails 8.1 просто не встанет.
+gem 'vite_rails', '~> 3.11'
 
 gem_group :development, :test do
   gem 'rspec-rails'
@@ -57,6 +59,17 @@ directory 'base/files/app/helpers', 'app/helpers', force: true
 directory 'base/files/app/models', 'app/models', force: true
 directory 'base/files/lib/generators', 'lib/generators', force: true
 copy_file 'base/files/config/routes.rb', 'config/routes.rb', force: true
+
+# Фронтенд: вендоренный design_system (ds/), энтрипоинты, стили.
+# Всё, что здесь лежит, собирает Vite; sprockets остаётся только под ERB-админку.
+directory 'base/files/app/frontend', 'app/frontend', force: true
+copy_file 'base/files/package.json', 'package.json', force: true
+copy_file 'base/files/vite.config.ts', 'vite.config.ts', force: true
+copy_file 'base/files/vitest.config.ts', 'vitest.config.ts', force: true
+copy_file 'base/files/tsconfig.json', 'tsconfig.json', force: true
+copy_file 'base/files/config/vite.json', 'config/vite.json', force: true
+# mode: :preserve — иначе бинстаб приедет с 644 и `bin/vite dev` в compose не запустится.
+copy_file 'base/files/bin/vite', 'bin/vite', force: true, mode: :preserve
 copy_file 'base/files/Procfile.dev', 'Procfile.dev', force: true
 copy_file 'base/files/.rubocop.yml', '.rubocop.yml', force: true
 copy_file 'base/files/.dockerignore', '.dockerignore', force: true
@@ -129,7 +142,34 @@ after_bundle do
       ADMIN_PASS=#{@admin_pass}
     ENV
   end
-  append_to_file '.gitignore', "\n# local env\n.env\n"
+  append_to_file '.gitignore', <<~IGNORE
+
+    # local env
+    .env
+
+    # Vite
+    /public/vite*
+    node_modules/
+    *.local
+  IGNORE
+
+  # node_modules нужен Vite'у: в dev `autoBuild` собирает бандл на первый запрос,
+  # и без зависимостей страница админки отдала бы 500. В докере то же самое делает
+  # `./run setup` на Node 24.
+  #
+  # Намеренно `system`, а не thor'овский `run`: `run` при ненулевом коде обрывает
+  # весь генератор, и неподходящий Node на хосте уносил бы с собой git init,
+  # первый коммит и next-steps. Докер-путь от хостового yarn не зависит.
+  if system('command -v yarn > /dev/null 2>&1')
+    say_status :run, 'yarn install'
+    unless system('yarn install')
+      say_status :scaffold,
+                 'yarn install не прошёл — фронтенд соберётся в докере (./run setup). ' \
+                 'Для сборки на хосте нужен Node 22.22+ или 24.15+: нечётные линии вне спеки ' \
+                 'vitest/jsdom.',
+                 :yellow
+    end
+  end
 end
 
 @next_steps << "  Admin: http://localhost:3000/admin   (login: #{@admin_login} / #{@admin_pass})"
