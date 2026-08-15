@@ -61,6 +61,52 @@ Props: `data`, `columns`, `pageSize`, `searchable`, `sortable` — **никак�
 пагинация ✅, sort ❌, search ❌»), — это не недоделка порта, а отсутствие серверного режима
 в оригинале. lave-порт server-mode **добавлял**; оригинал чище, но полностью клиентский.
 
+### 0.5 Прогон v1 — 2026-08-15, Ruby 3.4.5 / Rails 8.1.3 / PostgreSQL 16
+
+Шаг 1 плана выполнен. `bin/scaffold` **доходит до конца, exit 0**. Проверено на живом проекте:
+
+| Проверка | Результат |
+|---|---|
+| `bin/scaffold` целиком | ✅ exit 0, `bundle install` разрешился под Rails 8.1 |
+| `bin/rails g tma_resource Item "title body:text"` | ✅ без stdin, все файлы созданы |
+| `bin/rails db:migrate` | ✅ |
+| `bundle exec rspec` | ✅ зелёный — но **0 примеров** до генератора, 1 pending после |
+| `/up` | ✅ 200 |
+| `/admin` → логин `admin/admin123` | ✅ 302 → `/admin/superusers` 200, sidebar на месте |
+| `/admin/items` (сгенерированный ресурс) | ✅ 200 |
+| `/tma` | ✅ 200, содержит `telegram-web-app.js` |
+
+За три месяца ничего не отвалилось. Но нашлось три вещи:
+
+**A. Шаблон не переживает не-интерактивный запуск.** Rails 8.1 генерирует свои версии четырёх
+файлов, и `directory`/`copy_file` без `force: true` останавливаются на вопросе:
+
+```
+conflict  app/helpers/application_helper.rb
+conflict  Dockerfile
+conflict  .rubocop.yml
+conflict  .dockerignore
+```
+
+Прошло только из-за `yes |` в санити-скрипте. Без него `bin/scaffold` **зависает** — в CI, в
+скрипте, у агента. Тот же класс бага, что `yes?` в genya (§1.3), но уже в самом `template.rb`.
+Чинится `force: true`.
+
+**B. Шаблон не генерирует ни одного теста.** `rspec` зелёный вхолостую: 0 примеров.
+После `tma_resource` появляется ровно один pending-стаб — генератор, в отличие от genya,
+не вписывает в спеку shoulda-матчеры. При переносе genya эту его способность сохранить.
+
+**C. ⚠️ Утверждение «гема rubocop нет, линт не запускался ни разу» — НЕВЕРНО.**
+Rails 8.1 везёт `rubocop-rails-omakase`, `bundle exec rubocop` работает (1.89.0).
+Реальная проблема другая и хуже:
+- наш `.rubocop.yml` **затирает** конфиг omakase и не делает `inherit_gem` — стиль Rails выброшен;
+- `rubocop-rails` установлен, но в конфиге не подключён;
+- `TargetRubyVersion: 3.2` при фактическом Ruby 3.4;
+- **167 offenses на свежесгенерированном проекте.** То есть `./run lint` красный с первой минуты.
+
+Чинится правкой `.rubocop.yml` (inherit_gem omakase + plugins + TargetRubyVersion), а не
+добавлением гема.
+
 ---
 
 ## 1. Архитектура v2
@@ -160,7 +206,7 @@ Postgres — только во внутренней docker-сети, без пр
 | `vite_rails` | cookware | сборка |
 | `rack-cors` | lave | уже в v1 |
 | `dotenv-rails` | из v1 | `TG_BOT_TOKEN` только через ENV |
-| `rubocop`, `rubocop-rails`, `rubocop-rspec` | ни у кого | **чинит баг v1**: `.rubocop.yml` копируется, гема нет, линт не запускался ни разу |
+| `rubocop-rspec`, (`rubocop-factory_bot`) | ни у кого | см. §0.6 — сам rubocop уже едет из Rails 8.1, не хватает только rspec-плагинов |
 | `rspec-rails`, `factory_bot_rails`, `shoulda-matchers`, `faker`, `database_cleaner-active_record` | оба | уже в v1 |
 | `annotate`, `pry-rails` | оба | уже в v1 |
 | `debug` | Rails 8 default | вместо `byebug` |
@@ -241,9 +287,10 @@ design_system DataTable полностью клиентский (§0.4). Вар�
 
 ### 4.4 Прочее
 
-- v1 никем не запускался с мая — «works end-to-end» это утверждение из HANDOFF.md, не проверка.
-  Rails 8 и гемы с тех пор уехали.
+- ~~v1 никем не запускался с мая~~ — **прогнан 2026-08-15, см. §0.5.** Работает; найдены A/B/C.
 - Интерактивный режим scaffolder (пункт 3 майского фидбека) — не зафиксирован.
+  Учитывать §0.5-A: **не-интерактивный путь обязан быть дефолтом**, иначе шаблон непригоден
+  для CI и для агента.
 - Что делает первый реальный проект (платежи, доставка, склад) — рамка, не спека.
 
 ---
@@ -252,8 +299,9 @@ design_system DataTable полностью клиентский (§0.4). Вар�
 
 | # | Шаг | Блокеры |
 |---|---|---|
-| 0 | **Закоммитить v1** на текущей ветке — база для диффа (сейчас 0 коммитов при 63 untracked) | — |
-| 1 | Прогнать v1 как есть, зафиксировать что реально сломалось за 3 месяца | — |
+| 0 | ✅ **Сделано 2026-08-15** — `1d73adb` (v1 baseline) + `2f0ed3e` (решение δ) | — |
+| 1 | ✅ **Сделано 2026-08-15** — прогон v1, результаты в §0.5 | — |
+| 1.5 | Починить §0.5-A (`force: true` в `template.rb`) и §0.5-C (`.rubocop.yml`: inherit_gem omakase, plugins, TargetRubyVersion 3.4). Мелко, не блокируется ничем, снимает грабли на всех следующих шагах | — |
 | 2 | Docker-слой: `.dockerdev/`, compose с healthcheck'ами, Postgres без хостового порта, `./run` (форк `lave/lave`) | — |
 | 3 | Расщепить `template.rb` на base + tma overlay | — |
 | 4 | Решить §4.2, положить дерево design_system в шаблон + `bin/sync_ds` | §4.2 |

@@ -34,9 +34,35 @@
 - Удалять `lib/generators/tma_resource/templates/` файлы без проверки, что они не используются генератором (поищите по имени в `tma_resource_generator.rb`).
 
 ### ALWAYS
-- Все правки — на feature branch (`feat/...`, `fix/...`, `chore/...`).
-- Перед коммитом — прогнать `bin/test_e2e.sh` (когда он будет написан) или хотя бы вручную сгенерировать тестовый проект.
+- Все правки — на feature branch (`feat/...`, `fix/...`, `chore/...`). Никогда не на main/master.
 - При изменении публичного интерфейса `bin/scaffold` (флаги, ENV) — обновить `README.md` и пример в `CLAUDE.md`.
+
+### Quality gate — обязателен перед КАЖДЫМ коммитом кода
+
+Ни один код не коммитится, пока все четыре шага не зелёные. Это не рекомендация.
+Применяется и к агентам/сабагентам: агент, который не прогнал гейт, работу не сдал.
+
+```bash
+# 1. Сгенерировать проект НЕ-интерактивно (stdin закрыт — так это увидит CI и агент)
+bin/scaffold /tmp/gate_app --bot-token=test --app-name=GateApp < /dev/null
+#    Ни одного вопроса "Overwrite ...? [Ynaqdhm]". Зависание = провал.
+
+cd /tmp/gate_app
+# 2. Тесты
+bundle exec rspec                       # зелёный, БЕЗ pending-стабов от генератора
+# 3. Линт
+bundle exec rubocop                     # 0 offenses
+# 4. Смоук: генератор + миграция + живые роуты
+bin/rails g tma_resource Item "title body:text" < /dev/null && bin/rails db:migrate
+bundle exec rspec && bundle exec rubocop
+curl -sf localhost:3000/up              # после старта сервера; /admin и /tma → 200
+```
+
+Уборка за собой обязательна: `dropdb gate_app_development gate_app_test && rm -rf /tmp/gate_app`.
+Не оставлять базы и висящие `rails server` — следующий прогон об них спотыкается.
+
+**Если гейт красный — чинить, а не объяснять.** «Эти offenses были до меня» не принимается:
+базовый уровень — ноль, зафиксирован в `V2_PLAN.md §0.5-C`.
 
 ## Verification
 - `bin/scaffold ~/tmp/x --bot-token=test --app-name=X` — должен пройти без ошибок до конца, в конце вывести next-steps.
