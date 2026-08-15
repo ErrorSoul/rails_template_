@@ -1,0 +1,246 @@
+:root {
+  /* Backgrounds — soft noble blue */
+  --color-bg: #1b2138;
+  --color-bg-alt: #1c2335;
+  --color-surface: #212b4a;
+  --color-surface-alt: #273355;
+
+  /* Brand */
+  --color-primary: #e14eca;
+  --color-primary-state: #ba54f5;
+  --color-info: #1d8cf8;
+  --color-info-state: #3358f4;
+  --color-success: #00f2c3;
+  --color-success-state: #0098f0;
+  --color-warning: #ff8d72;
+  --color-warning-state: #ff6491;
+  --color-danger: #fd5d93;
+  --color-danger-state: #ec250d;
+  --color-default: #344675;
+  --color-default-state: #263148;
+
+  /* Base colors */
+  --color-blue: #5e72e4;
+  --color-indigo: #5603ad;
+  --color-purple: #8965e0;
+  --color-pink: #f3a4b5;
+  --color-red: #f5365c;
+  --color-orange: #fb6340;
+  --color-yellow: #ffd600;
+  --color-green: #2dce89;
+  --color-teal: #11cdef;
+  --color-cyan: #2bffc6;
+  --color-white: #ffffff;
+  --color-black: #222a42;
+
+  /* Grays */
+  --color-gray-100: #f6f9fc;
+  --color-gray-200: #e9ecef;
+  --color-gray-300: #e3e3e3;
+  --color-gray-400: #ced4da;
+  --color-gray-500: #adb5bd;
+  --color-gray-600: #6c757d;
+  --color-gray-700: #525f7f;
+  --color-gray-800: #32325d;
+  --color-gray-900: #212529;
+
+  /* Typography */
+  --font-base: 'Montserrat', sans-serif;
+  --font-size-xs: 0.625rem;
+  --font-size-sm: 0.75rem;
+  --font-size-base: 0.875rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.25rem;
+
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 1rem;
+  --spacing-4: 1.5rem;
+  --spacing-5: 3rem;
+  --spacing-sm: 2rem;
+  --spacing-md: 4rem;
+  --spacing-lg: 6rem;
+  --spacing-xl: 8rem;
+
+  /* Border Radius */
+  --radius-xs: 0.1428rem;
+  --radius-sm: 0.2857rem;
+  --radius-base: 0.25rem;
+  --radius-lg: 0.4285rem;
+  --radius-xl: 0.875rem;
+
+  /* Shadows */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(34, 42, 66, 0.075);
+  --shadow-base: 0 1px 20px 0px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(var(--color-accent-rgb), 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(var(--color-accent-rgb), 0.12);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(var(--color-accent-rgb), 0.18);
+  --shadow-raised: 0px 10px 25px 0px rgba(0, 0, 0, 0.3);
+  --shadow-dropdown: 1px 2px 3px 0px rgba(0, 0, 0, 0.125);
+
+  /* Transitions */
+  --transition-base: all 0.15s ease;
+  --transition-fast: 150ms;
+  --transition-general: 300ms;
+  --transition-bezier: cubic-bezier(0.34, 1.61, 0.7, 1);
+
+  /* Animation durations */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* Easing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Accent RGB (for dynamic rgba) */
+  --color-accent-rgb: 29, 140, 248;
+
+  /* Gradients — subtle 180deg same-hue pairs (NOT 87deg contrasting) */
+  --gradient-primary: linear-gradient(180deg, #e14eca 0%, #ba54f5 100%);
+  --gradient-info:    linear-gradient(180deg, #1d8cf8 0%, #3358f4 100%);
+  --gradient-success: linear-gradient(180deg, #00f2c3 0%, #0098f0 100%);
+  --gradient-warning: linear-gradient(180deg, #ff8d72 0%, #ff6491 100%);
+  --gradient-danger:  linear-gradient(180deg, #fd5d93 0%, #ec250d 100%);
+  --gradient-default: linear-gradient(180deg, #344675 0%, #263148 100%);
+}
+
+[data-theme="ocean"] {
+  --color-primary: #38bdf8;
+  --color-primary-state: #0ea5e9;
+  --color-info: #818cf8;
+  --color-info-state: #6366f1;
+  --color-success: #34d399;
+  --color-success-state: #10b981;
+  --color-warning: #fbbf24;
+  --color-warning-state: #f59e0b;
+  --color-danger: #f87171;
+  --color-danger-state: #ef4444;
+  --color-accent-rgb: 129, 140, 248;
+  --gradient-primary: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+  --gradient-info:    linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
+  --gradient-success: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  --gradient-warning: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  --gradient-danger:  linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+  --gradient-default: linear-gradient(180deg, #344675 0%, #263148 100%);
+}
+
+[data-theme="emerald"] {
+  --color-primary: #00f2c3;
+  --color-primary-state: #10b981;
+  --color-info: #67e8f9;
+  --color-info-state: #22d3ee;
+  --color-success: #a3e635;
+  --color-success-state: #84cc16;
+  --color-warning: #fde047;
+  --color-warning-state: #facc15;
+  --color-danger: #fb923c;
+  --color-danger-state: #f97316;
+  --color-accent-rgb: 0, 242, 195;
+  --gradient-primary: linear-gradient(180deg, #00f2c3 0%, #10b981 100%);
+  --gradient-info:    linear-gradient(180deg, #67e8f9 0%, #22d3ee 100%);
+  --gradient-success: linear-gradient(180deg, #a3e635 0%, #84cc16 100%);
+  --gradient-warning: linear-gradient(180deg, #fde047 0%, #facc15 100%);
+  --gradient-danger:  linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+  --gradient-default: linear-gradient(180deg, #344675 0%, #263148 100%);
+}
+
+[data-theme="sunset"] {
+  --color-primary: #fb923c;
+  --color-primary-state: #f97316;
+  --color-info: #e879f9;
+  --color-info-state: #d946ef;
+  --color-success: #4ade80;
+  --color-success-state: #22c55e;
+  --color-warning: #fcd34d;
+  --color-warning-state: #fbbf24;
+  --color-danger: #fb7185;
+  --color-danger-state: #f43f5e;
+  --color-accent-rgb: 232, 121, 249;
+  --gradient-primary: linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+  --gradient-info:    linear-gradient(180deg, #e879f9 0%, #d946ef 100%);
+  --gradient-success: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+  --gradient-warning: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%);
+  --gradient-danger:  linear-gradient(180deg, #fb7185 0%, #f43f5e 100%);
+  --gradient-default: linear-gradient(180deg, #344675 0%, #263148 100%);
+}
+
+[data-theme="emerald-classic"] {
+  --color-bg: #1e1e2f;
+  --color-bg-alt: #1e1e24;
+  --color-surface: #222a42;
+  --color-surface-alt: #263148;
+  --color-primary: #00f2c3;
+  --color-primary-state: #10b981;
+  --color-info: #67e8f9;
+  --color-info-state: #22d3ee;
+  --color-success: #a3e635;
+  --color-success-state: #84cc16;
+  --color-warning: #fde047;
+  --color-warning-state: #facc15;
+  --color-danger: #fb923c;
+  --color-danger-state: #f97316;
+  --color-accent-rgb: 0, 242, 195;
+  --gradient-primary: linear-gradient(180deg, #00f2c3 0%, #10b981 100%);
+  --gradient-info:    linear-gradient(180deg, #67e8f9 0%, #22d3ee 100%);
+  --gradient-success: linear-gradient(180deg, #a3e635 0%, #84cc16 100%);
+  --gradient-warning: linear-gradient(180deg, #fde047 0%, #facc15 100%);
+  --gradient-danger:  linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+  --gradient-default: linear-gradient(180deg, #344675 0%, #263148 100%);
+}
+
+[data-theme="sunset-classic"] {
+  --color-bg: #1e1e2f;
+  --color-bg-alt: #1e1e24;
+  --color-surface: #222a42;
+  --color-surface-alt: #263148;
+  --color-primary: #fb923c;
+  --color-primary-state: #f97316;
+  --color-info: #e879f9;
+  --color-info-state: #d946ef;
+  --color-success: #4ade80;
+  --color-success-state: #22c55e;
+  --color-warning: #fcd34d;
+  --color-warning-state: #fbbf24;
+  --color-danger: #fb7185;
+  --color-danger-state: #f43f5e;
+  --color-accent-rgb: 232, 121, 249;
+  --gradient-primary: linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+  --gradient-info:    linear-gradient(180deg, #e879f9 0%, #d946ef 100%);
+  --gradient-success: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+  --gradient-warning: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%);
+  --gradient-danger:  linear-gradient(180deg, #fb7185 0%, #f43f5e 100%);
+  --gradient-default: linear-gradient(180deg, #344675 0%, #263148 100%);
+}
+
+/* ─── Global Animation Keyframes ─── */
+
+@keyframes ds-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ds-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes ds-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ds-slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ds-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ds-slide-in-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}

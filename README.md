@@ -81,6 +81,7 @@ state_machines, kaminari, searchlight, telegram-bot-ruby (incoming webhook + б�
 rails_template/
 ├── template.rb                    # тонкий диспетчер: инпуты, source_paths, слои, финализация
 ├── bin/scaffold                   # обёртка: rails new + template.rb + next-steps
+├── bin/sync_ds                    # дифф апстрима design_system против вендоренного снапшота
 ├── lib/templates/
 │   ├── base.rb                    # слой base: гемы, копирование base/, after_bundle (БД, rspec, seed)
 │   ├── tma.rb                     # слой tma: копирование tma/, патчи по base-файлам, миграция Users
@@ -89,6 +90,8 @@ rails_template/
 │   │   ├── app/controllers/       # Application, Admin, Api::V1::Base, Api::V1::Admin::Base
 │   │   ├── app/views/             # layouts/{application,auth,dashboard}, admin/, shared/
 │   │   ├── app/assets/stylesheets/design_system/  # tokens.css + admin.css
+│   │   ├── app/frontend/ds/       # снапшот design_system: 84 React-компонента + 83 теста,
+│   │   │                          # utils/cn.ts, tokens/index.css, DS_VERSION (см. bin/sync_ds)
 │   │   ├── lib/generators/tma_resource/           # CRUD-генератор (едет в новый app)
 │   │   ├── .dockerdev/            # dev-образ, compose.yml, Aptfile, .psqlrc, .bashrc
 │   │   ├── run                    # обёртка над docker compose (вместо dip)

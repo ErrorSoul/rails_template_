@@ -1,0 +1,25 @@
+# Снапшот design_system. Дерево ниже — копия, а не зависимость: у апстрима нет ни
+# remote, ни тегов, ни публикуемого пакета ("private": true, без exports/dist),
+# поэтому «тянуть по версии» неоткуда. Решение и доказательства — V2_PLAN.md §4.2.
+#
+# Автообновления НЕТ и не планируется: сгенерированный проект владеет своей копией.
+# Посмотреть, что изменилось в апстриме с момента снятия снапшота: bin/sync_ds
+# (печатает дифф, ничего не применяет).
+
+upstream: /Users/abu/works/design_system   # локальный репозиторий, remote отсутствует
+sha:      4a804fbdddc47a93629e8c62c153fb7cd99e8d0b
+date:     2026-03-29
+vendored: 2026-08-15
+
+paths:
+  app/src/components   -> ds/components   # 84 компонента (30 atoms / 28 molecules / 23 organisms / 3 templates) + 83 теста
+  app/src/utils/cn.ts  -> ds/utils/cn.ts  # + cn.test.ts
+  app/src/tokens/index.css -> ds/tokens/index.css
+  app/src/test/setup.ts -> ds/test/setup.ts   # мок matchMedia, нужен 83 тестам
+
+# НЕ вендорим: pages/, showcase/, preview/, App.tsx, main.tsx, assets/ — только они
+# тянут react-router-dom; сами компоненты импортируют лишь react, react-dom и тест-либы.
+#
+# Структура сохранена 1-в-1 относительно app/src: все 84 компонента импортируют
+# `../../../utils/cn`, и любой другой раскладке пришлось бы править 84 файла —
+# после чего дифф против апстрима перестал бы быть читаемым навсегда.

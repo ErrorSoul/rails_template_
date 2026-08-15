@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# bin/sync_ds — показать, что изменилось в апстриме design_system с момента вендоринга.
+#
+# Ничего НЕ применяет. Апдейт снапшота — осознанное действие руками: перекопировать
+# дерево, переписать sha/date в DS_VERSION, прогнать гейт.
+#
+# Usage:
+#   bin/sync_ds                 # дифф по вендоренным путям
+#   bin/sync_ds --stat          # только статистика
+#   DS_SRC=/path/to/ds bin/sync_ds
+#
+# Exit codes: 0 — диффа нет (снапшот совпадает с HEAD апстрима), 1 — дифф есть,
+# 2 — апстрим недоступен. Ненулевой код при диффе сделан намеренно: скрипт годится
+# как проверка «мы отстали от донора».
+
+set -uo pipefail
+
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+VENDOR_DIR="$REPO_DIR/lib/templates/base/files/app/frontend/ds"
+DS_VERSION_FILE="$VENDOR_DIR/DS_VERSION"
+DS_SRC="${DS_SRC:-$HOME/works/design_system}"
+
+# Пути в апстриме, из которых снят снапшот. Держать в синхроне с DS_VERSION.
+UPSTREAM_PATHS=(
+  app/src/components
+  app/src/utils/cn.ts
+  app/src/utils/cn.test.ts
+  app/src/tokens/index.css
+  app/src/test/setup.ts
+)
+
+[[ -f "$DS_VERSION_FILE" ]] || { echo "✗ Нет $DS_VERSION_FILE" >&2; exit 2; }
+[[ -d "$DS_SRC/.git" ]] || { echo "✗ Апстрим не найден: $DS_SRC (переопредели через DS_SRC=)" >&2; exit 2; }
+
+SHA="$(awk '/^sha:/ { print $2; exit }' "$DS_VERSION_FILE")"
+[[ -n "$SHA" ]] || { echo "✗ В DS_VERSION нет строки 'sha:'" >&2; exit 2; }
+
+if ! git -C "$DS_SRC" cat-file -e "$SHA^{commit}" 2>/dev/null; then
+  echo "✗ Коммита $SHA нет в $DS_SRC — апстрим переписал историю?" >&2
+  exit 2
+fi
+
+HEAD_SHA="$(git -C "$DS_SRC" rev-parse HEAD)"
+echo "снапшот: $SHA"
+echo "апстрим: $HEAD_SHA ($(git -C "$DS_SRC" log -1 --format='%ad' --date=short))"
+echo
+
+if [[ "${1:-}" == "--stat" ]]; then
+  git -C "$DS_SRC" diff --stat "$SHA"..HEAD -- "${UPSTREAM_PATHS[@]}"
+else
+  git -C "$DS_SRC" diff "$SHA"..HEAD -- "${UPSTREAM_PATHS[@]}"
+fi
+
+if git -C "$DS_SRC" diff --quiet "$SHA"..HEAD -- "${UPSTREAM_PATHS[@]}"; then
+  echo "✓ Апстрим не ушёл: снапшот совпадает с HEAD по вендоренным путям."
+  exit 0
+fi
+
+echo
+echo "⚠ Апстрим ушёл вперёд. Обновление снапшота — руками:"
+echo "   rsync -a --delete $DS_SRC/app/src/components/ $VENDOR_DIR/components/"
+echo "   # затем cn.ts / tokens / setup.ts, новый sha+date в DS_VERSION, и гейт целиком"
+exit 1
