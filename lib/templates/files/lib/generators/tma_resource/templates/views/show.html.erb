@@ -1,0 +1,14 @@
+<%% content_for :page_title, "<%= class_name %> ##{@<%= singular_name %>.id}" %>
+<dl class="kv">
+  <dt>ID</dt>          <dd><%%= @<%= singular_name %>.id %></dd>
+<% attrs.each do |a| -%>
+  <dt><%= a[:name].humanize %></dt>
+  <dd><%%= simple_format(@<%= singular_name %>.<%= a[:name] %>.to_s) %></dd>
+<% end -%>
+  <dt>Создан</dt>      <dd><%%= l @<%= singular_name %>.created_at %></dd>
+  <dt>Обновлён</dt>    <dd><%%= l @<%= singular_name %>.updated_at %></dd>
+</dl>
+<div style="margin-top: var(--spacing-3);">
+  <%%= link_to "edit", edit_admin_<%= singular_name %>_path(@<%= singular_name %>), class: "btn btn--ghost" %>
+  <%%= button_to "delete", admin_<%= singular_name %>_path(@<%= singular_name %>), method: :delete, class: "btn btn--danger", data: { turbo_confirm: "Точно?" } %>
+</div>

@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+# bin/scaffold — wraps `rails new -m template.rb` for ergonomic Telegram Mini App scaffolding.
+#
+# Usage:
+#   bin/scaffold <target-dir> [options]
+#
+# Options:
+#   --bot-token=<token>      Telegram bot token from @BotFather. If empty, you can
+#                            fill .env later (initData verification will fail until set).
+#   --app-name=<name>        Display name (default: basename of <target-dir>).
+#   --admin-login=<login>    Initial superuser login (default: admin).
+#   --admin-pass=<pass>      Initial superuser password (default: admin123).
+#   --skip-bundle            Pass --skip-bundle to rails new (useful when offline).
+#   --dry-run                Print the rails new command and exit.
+#   --help, -h               Show this help.
+#
+# Example:
+#   bin/scaffold ~/works/my_tma --bot-token=123:ABC --app-name="My TMA"
+
+set -euo pipefail
+
+usage() {
+  sed -n '4,22p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+# ── parse args ──────────────────────────────────────────────────────────────
+TARGET=""
+BOT_TOKEN="${TG_BOT_TOKEN:-}"
+APP_NAME=""
+ADMIN_LOGIN="admin"
+ADMIN_PASS="admin123"
+DRY_RUN=0
+SKIP_BUNDLE=""
+
+for arg in "$@"; do
+  case "$arg" in
+    --help|-h)              usage; exit 0 ;;
+    --bot-token=*)          BOT_TOKEN="${arg#*=}" ;;
+    --app-name=*)           APP_NAME="${arg#*=}" ;;
+    --admin-login=*)        ADMIN_LOGIN="${arg#*=}" ;;
+    --admin-pass=*)         ADMIN_PASS="${arg#*=}" ;;
+    --skip-bundle)          SKIP_BUNDLE="--skip-bundle" ;;
+    --dry-run)              DRY_RUN=1 ;;
+    --*)                    echo "✗ Unknown option: $arg" >&2; usage; exit 1 ;;
+    *)
+      if [[ -z "$TARGET" ]]; then TARGET="$arg"
+      else echo "✗ Unexpected positional arg: $arg" >&2; usage; exit 1
+      fi
+      ;;
+  esac
+done
+
+if [[ -z "$TARGET" ]]; then
+  echo "✗ target-dir required." >&2
+  usage
+  exit 1
+fi
+
+# Expand ~/...
+TARGET="${TARGET/#\~/$HOME}"
+TARGET_ABS="$(cd "$(dirname "$TARGET")" 2>/dev/null && pwd)/$(basename "$TARGET")" || TARGET_ABS="$TARGET"
+
+if [[ -e "$TARGET" && -n "$(ls -A "$TARGET" 2>/dev/null || true)" ]]; then
+  echo "✗ $TARGET already exists and is not empty." >&2
+  exit 1
+fi
+
+# ── resolve template ───────────────────────────────────────────────────────
+TEMPLATE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+TEMPLATE_FILE="$TEMPLATE_DIR/template.rb"
+[[ -f "$TEMPLATE_FILE" ]] || { echo "✗ template.rb not found at $TEMPLATE_FILE" >&2; exit 1; }
+
+# ── preflight ──────────────────────────────────────────────────────────────
+if ! command -v rails >/dev/null 2>&1; then
+  echo "✗ rails CLI not found. Install: gem install rails -v '~>7.1'" >&2
+  exit 1
+fi
+
+if ! command -v ruby >/dev/null 2>&1; then
+  echo "✗ ruby not found." >&2; exit 1
+fi
+
+if ! command -v bundle >/dev/null 2>&1; then
+  echo "⚠ bundler not found — install with 'gem install bundler' (rails new will need it)." >&2
+fi
+
+if ! command -v pg_isready >/dev/null 2>&1; then
+  echo "⚠ postgresql client (pg_isready) not found. Если будешь крутить локально (не в docker), поставь postgres."
+fi
+
+# ── defaults ───────────────────────────────────────────────────────────────
+APP_BASENAME="$(basename "$TARGET")"
+[[ -z "$APP_NAME" ]] && APP_NAME="$APP_BASENAME"
+
+# ── compose rails new command ──────────────────────────────────────────────
+CMD=(rails new "$TARGET" -d postgresql -T --skip-jbuilder)
+# Rails 8: skip kamal/solid_* — they conflict with our template's source_paths
+# and we don't use them in the MVP scaffold.
+CMD+=(--skip-kamal --skip-solid)
+[[ -n "$SKIP_BUNDLE" ]] && CMD+=("$SKIP_BUNDLE")
+CMD+=(-m "$TEMPLATE_FILE")
+
+if [[ $DRY_RUN -eq 1 ]]; then
+  echo "DRY-RUN. Would run with env:"
+  echo "  TG_APP_NAME=$APP_NAME"
+  echo "  TG_BOT_TOKEN=${BOT_TOKEN:+set (${#BOT_TOKEN} chars)}"
+  echo "  TG_ADMIN_LOGIN=$ADMIN_LOGIN"
+  echo "  TG_ADMIN_PASS=*****"
+  echo "Command:"
+  echo "  ${CMD[*]}"
+  exit 0
+fi
+
+echo "→ Generating '$APP_NAME' at $TARGET (template: $TEMPLATE_FILE)"
+echo
+
+# ── exec ───────────────────────────────────────────────────────────────────
+TG_APP_NAME="$APP_NAME" \
+TG_BOT_TOKEN="$BOT_TOKEN" \
+TG_ADMIN_LOGIN="$ADMIN_LOGIN" \
+TG_ADMIN_PASS="$ADMIN_PASS" \
+  "${CMD[@]}"
+
+# ── next steps ─────────────────────────────────────────────────────────────
+cat <<EOF
+
+═══════════════════════════════════════════════════════════════════════════
+  ✅ $APP_NAME готов в $TARGET
+═══════════════════════════════════════════════════════════════════════════
+
+Следующие шаги:
+
+  cd $TARGET
+
+  # 1. Поднять стек:
+  docker compose up                         # либо bin/rails db:prepare && bin/dev
+
+  # 2. Открыть HTTPS-туннель (Telegram не пускает HTTP):
+  cloudflared tunnel --url http://localhost:3000
+  # → запиши https://<tunnel>.trycloudflare.com
+
+  # 3. В @BotFather:
+  #    /mybots → @YourBot → Bot Settings → Menu Button
+  #    URL = https://<tunnel>.trycloudflare.com/tma
+
+  # 4. Открыть бот в Telegram, нажать Menu Button — должен открыться TMA.
+
+Доступы:
+  Admin:  http://localhost:3000/admin       ($ADMIN_LOGIN / $ADMIN_PASS)
+  TMA:    http://localhost:3000/tma         (через HTTPS-туннель из Telegram)
+
+CRUD-генератор:
+  bin/rails g tma_resource Item "title body:text"
+  bin/rails db:migrate
+  # → http://localhost:3000/admin/items
+
+ENV:
+  Файл .env создан в $TARGET с дефолтами.
+EOF
+
+if [[ -n "$BOT_TOKEN" ]]; then
+  echo "  ✓ TG_BOT_TOKEN установлен."
+else
+  echo "  ⚠ TG_BOT_TOKEN пуст — заполни в .env, иначе initData не пройдёт."
+fi
+echo

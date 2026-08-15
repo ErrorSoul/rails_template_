@@ -1,0 +1,36 @@
+<div class="ds-auth-layout__header">
+  <div class="ds-auth-layout__brand">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="url(#tma-brand-grad)"/>
+      <path d="M10 16l4 4 8-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <defs>
+        <linearGradient id="tma-brand-grad" x1="0" y1="0" x2="32" y2="32">
+          <stop stop-color="var(--color-primary)"/>
+          <stop offset="1" stop-color="var(--color-info)"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span><%= tg_app_name %></span>
+  </div>
+  <h1 class="ds-auth-layout__title">С возвращением</h1>
+  <p class="ds-auth-layout__subtitle">Войди в админку</p>
+</div>
+
+<div class="ds-auth-layout__body">
+  <%= render "shared/flash" %>
+  <%= form_with url: admin_authenticate_path, method: :post, local: true do |f| %>
+    <div class="field">
+      <%= f.label :login %>
+      <%= f.text_field :login, autofocus: true, autocomplete: "username" %>
+    </div>
+    <div class="field">
+      <%= f.label :password %>
+      <%= f.password_field :password, autocomplete: "current-password" %>
+    </div>
+    <%= f.submit "Войти", class: "btn btn--block" %>
+  <% end %>
+</div>
+
+<div class="ds-auth-layout__footer">
+  <%= link_to "← Открыть TMA", "/tma" %>
+</div>

@@ -1,0 +1,20 @@
+<% content_for :page_title, "Superusers" %>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-3);">
+  <span><%= pluralize(@superusers.count, "superuser") %></span>
+  <%= link_to "+ Создать", new_admin_superuser_path, class: "btn" %>
+</div>
+
+<%= render "shared/ds_table",
+  columns: [
+    { key: :id,         title: "ID", width: "60px" },
+    { key: :login,      title: "Login" },
+    { key: :created_at, title: "Создан", render: ->(r) { l(r.created_at, format: :short) } }
+  ],
+  rows: @superusers,
+  actions: ->(row) {
+    safe_join([
+      link_to("show", admin_superuser_path(row), class: "btn btn--ghost btn--sm"),
+      link_to("edit", edit_admin_superuser_path(row), class: "btn btn--ghost btn--sm")
+    ], " ")
+  }
+%>

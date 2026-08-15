@@ -1,0 +1,18 @@
+# Claude Code session-local artifacts (not the config — that's committed)
+.claude/.cache/
+.claude/.session/
+HANDOFF.md
+
+# Common
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+# ВАЖНО: шаблон .env.example.erb — часть исходников, без него template.rb падает
+!.env.example.erb
+node_modules/
+dist/
+build/
+.venv/
+__pycache__/

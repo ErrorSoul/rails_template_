@@ -1,0 +1,52 @@
+<%#
+  ERB port of ~/works/design_system/app/src/components/organisms/Table/index.tsx.
+  Hover/striped/empty rendered via CSS (admin.css), not JS.
+
+  Locals:
+    columns: Array of Hash. Each column:
+      { key: :title, title: "Title", width: "200px" (optional),
+        render: ->(row) { ... } (optional — returns html_safe) }
+      Without :render, cell value is row.public_send(col[:key]).
+    rows:    ActiveRecord::Relation or Array of model instances.
+    actions: Optional lambda ->(row) returning html_safe — appears as last column.
+    empty_text: Optional, default "Нет данных".
+%>
+<% empty_text = local_assigns.fetch(:empty_text, "Нет данных")
+   actions    = local_assigns.fetch(:actions, nil)
+   col_count  = columns.length + (actions ? 1 : 0) %>
+<div class="ds-table-wrapper">
+  <table class="ds-table">
+    <thead>
+      <tr class="ds-table__head-row">
+        <% columns.each do |col| %>
+          <th<%= col[:width] ? " style=\"width: #{col[:width]};\"".html_safe : "".html_safe %>>
+            <%= col[:title] %>
+          </th>
+        <% end %>
+        <% if actions %><th class="ds-table__actions-col"></th><% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% if rows.respond_to?(:empty?) && rows.empty? %>
+        <tr><td colspan="<%= col_count %>" class="ds-table__empty"><%= empty_text %></td></tr>
+      <% else %>
+        <% rows.each_with_index do |row, idx| %>
+          <tr class="ds-table__row<%= ' ds-table__row--striped' if idx.odd? %>">
+            <% columns.each do |col| %>
+              <td>
+                <% if col[:render].respond_to?(:call) %>
+                  <%= col[:render].call(row) %>
+                <% else %>
+                  <%= row.public_send(col[:key]) %>
+                <% end %>
+              </td>
+            <% end %>
+            <% if actions %>
+              <td class="ds-table__actions"><%= actions.call(row) %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

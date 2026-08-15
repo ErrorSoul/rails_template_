@@ -1,0 +1,19 @@
+<%% content_for :page_title, "<%= plural_name.humanize %>" %>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-3);">
+  <span><%%= pluralize(@<%= plural_name %>.count, "<%= singular_name %>") %></span>
+  <%%= link_to "+ Создать", new_admin_<%= singular_name %>_path, class: "btn" %>
+</div>
+
+<%%= render "shared/ds_table",
+  columns: [
+    { key: :id, title: "ID", width: "60px" }<% attrs.each do |a| -%>,
+    { key: :<%= a[:name] %>, title: "<%= a[:name].humanize %>"<% if %w[text].include?(a[:type]) -%>, render: ->(r) { truncate(r.<%= a[:name] %>.to_s, length: 80) }<% end -%> }<% end %>
+  ],
+  rows: @<%= plural_name %>,
+  actions: ->(row) {
+    safe_join([
+      link_to("show", admin_<%= singular_name %>_path(row), class: "btn btn--ghost btn--sm"),
+      link_to("edit", edit_admin_<%= singular_name %>_path(row), class: "btn btn--ghost btn--sm")
+    ], " ")
+  }
+%>

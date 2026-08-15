@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Block direct commits on main/master. Ported from ~/works/lave-cashback/.githooks/pre-commit.
+set -e
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+case "$branch" in
+  main|master)
+    echo "✗ Прямой коммит в $branch запрещён."
+    echo "  Создай feature branch: git switch -c feat/<short-name>"
+    exit 1
+    ;;
+esac

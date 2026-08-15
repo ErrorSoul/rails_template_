@@ -1,0 +1,27 @@
+<%%= form_with model: <%= singular_name %>, url: <%= singular_name %>.persisted? ? admin_<%= singular_name %>_path(<%= singular_name %>) : admin_<%= plural_name %>_path, local: true do |f| %>
+  <%% if <%= singular_name %>.errors.any? %>
+    <div class="flash flash--error">
+      <%%= <%= singular_name %>.errors.full_messages.to_sentence %>
+    </div>
+  <%% end %>
+<% attrs.each do |a| -%>
+  <div class="field">
+    <%%= f.label :<%= a[:name] %> %>
+<% if %w[text].include?(a[:type]) -%>
+    <%%= f.text_area :<%= a[:name] %>, rows: 5 %>
+<% elsif %w[integer decimal float bigint].include?(a[:type]) -%>
+    <%%= f.number_field :<%= a[:name] %> %>
+<% elsif %w[boolean].include?(a[:type]) -%>
+    <%%= f.check_box :<%= a[:name] %> %>
+<% elsif %w[date].include?(a[:type]) -%>
+    <%%= f.date_field :<%= a[:name] %> %>
+<% elsif %w[datetime timestamp].include?(a[:type]) -%>
+    <%%= f.datetime_local_field :<%= a[:name] %> %>
+<% else -%>
+    <%%= f.text_field :<%= a[:name] %> %>
+<% end -%>
+  </div>
+<% end -%>
+  <%%= f.submit "Сохранить", class: "btn" %>
+  <%%= link_to "Отмена", admin_<%= plural_name %>_path, class: "btn btn--ghost" %>
+<%% end %>

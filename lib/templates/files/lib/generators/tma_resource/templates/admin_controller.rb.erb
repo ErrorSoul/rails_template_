@@ -1,0 +1,51 @@
+# frozen_string_literal: true
+
+module Admin
+  class <%= plural_name.camelize %>Controller < AdminController
+    before_action :load_resource, only: %i[show edit update destroy]
+
+    def index
+      @<%= plural_name %> = <%= class_name %>.order(id: :desc)
+    end
+
+    def show; end
+
+    def new
+      @<%= singular_name %> = <%= class_name %>.new
+    end
+
+    def create
+      @<%= singular_name %> = <%= class_name %>.new(resource_params)
+      if @<%= singular_name %>.save
+        redirect_to admin_<%= singular_name %>_path(@<%= singular_name %>), notice: 'Создан'
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+
+    def edit; end
+
+    def update
+      if @<%= singular_name %>.update(resource_params)
+        redirect_to admin_<%= singular_name %>_path(@<%= singular_name %>), notice: 'Обновлён'
+      else
+        render :edit, status: :unprocessable_entity
+      end
+    end
+
+    def destroy
+      @<%= singular_name %>.destroy
+      redirect_to admin_<%= plural_name %>_path, notice: 'Удалён'
+    end
+
+    private
+
+    def load_resource
+      @<%= singular_name %> = <%= class_name %>.find(params[:id])
+    end
+
+    def resource_params
+      params.require(:<%= singular_name %>).permit(<%= attrs.map { |a| ":#{a[:name]}" }.join(', ').then { |s| s.empty? ? '' : s } %>)
+    end
+  end
+end

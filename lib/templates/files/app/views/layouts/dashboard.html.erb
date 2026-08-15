@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>Admin · <%= tg_app_name %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<%= form_authenticity_token %>">
+    <%= stylesheet_link_tag "design_system/tokens", "design_system/admin", media: "all" %>
+    <%= javascript_include_tag "application", defer: true %>
+  </head>
+  <body>
+    <div class="admin-shell">
+      <%= render "shared/sidebar" %>
+      <main class="admin-main">
+        <header class="admin-topbar">
+          <h1><%= content_for?(:page_title) ? yield(:page_title) : tg_app_name %></h1>
+          <div>
+            <% if current_superuser %>
+              <span><%= current_superuser.login %></span>
+              <%= button_to "Выйти", admin_logout_path, method: :delete, class: "btn btn--ghost btn--sm", form: { style: "display:inline" } %>
+            <% end %>
+          </div>
+        </header>
+        <section class="admin-content">
+          <%= render "shared/flash" %>
+          <%= yield %>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

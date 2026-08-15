@@ -1,0 +1,217 @@
+/* Admin panel — sidebar + topbar layout */
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  background: var(--color-surface);
+  padding: var(--spacing-3);
+  border-right: 1px solid var(--color-surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+.admin-brand {
+  font-weight: 700;
+  font-size: var(--font-size-xl);
+  padding: var(--spacing-2);
+}
+.admin-brand a { color: var(--color-text); }
+.admin-nav ul { list-style: none; padding: 0; margin: 0; }
+.admin-nav li { margin-bottom: var(--spacing-1); }
+.admin-nav a {
+  display: block;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  transition: var(--transition-base);
+}
+.admin-nav a:hover, .admin-nav a.active {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.admin-main { display: flex; flex-direction: column; }
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 1px solid var(--color-surface-alt);
+}
+.admin-topbar h1 { margin: 0; font-size: var(--font-size-xl); }
+.admin-content { padding: var(--spacing-4); }
+
+/* ── Components ────────────────────────────────────────────── */
+
+.btn {
+  display: inline-block;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-lg);
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+  background: var(--gradient-primary);
+  color: var(--color-button-text);
+  text-decoration: none;
+}
+.btn:hover { filter: brightness(1.1); text-decoration: none; }
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-alt);
+}
+.btn--danger { background: var(--gradient-danger); }
+.btn--sm { padding: var(--spacing-1) var(--spacing-2); font-size: var(--font-size-sm); }
+
+.field { display: block; margin-bottom: var(--spacing-3); }
+.field label { display: block; margin-bottom: var(--spacing-1); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.field input, .field textarea, .field select {
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: var(--radius-lg);
+  font: inherit;
+}
+.field--error input, .field--error textarea { border-color: var(--color-danger); }
+.field-error { color: var(--color-danger); font-size: var(--font-size-sm); margin-top: var(--spacing-1); }
+
+/* ── ds-table — port of design_system/app/src/components/organisms/Table ── */
+.ds-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(225, 78, 202, 0.1);
+  background: var(--color-surface);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-base);
+  font-size: 0.875rem;
+}
+.ds-table__head-row {
+  background: linear-gradient(135deg, rgba(225, 78, 202, 0.06) 0%, rgba(29, 140, 248, 0.06) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.ds-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-gray-500);
+  white-space: nowrap;
+}
+.ds-table__row {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: var(--transition-base);
+}
+.ds-table__row:last-child { border-bottom: none; }
+.ds-table__row--striped { background: rgba(255, 255, 255, 0.02); }
+.ds-table__row:hover { background: rgba(225, 78, 202, 0.05); }
+.ds-table td {
+  padding: 0.75rem 1rem;
+  color: var(--color-gray-200);
+}
+.ds-table__empty {
+  padding: 2rem 1rem !important;
+  text-align: center;
+  color: var(--color-gray-500);
+}
+.ds-table__actions {
+  display: flex;
+  gap: var(--spacing-1);
+  justify-content: flex-end;
+}
+.ds-table__actions-col { width: 1%; white-space: nowrap; }
+
+.flash {
+  padding: var(--spacing-2) var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border-left: 4px solid var(--color-info);
+}
+.flash--error { border-left-color: var(--color-danger); }
+.flash--notice { border-left-color: var(--color-success); }
+
+.kv { display: grid; grid-template-columns: 200px 1fr; gap: var(--spacing-2); }
+.kv dt { color: var(--color-text-muted); }
+.kv dd { margin: 0; }
+
+/* ── ds-auth-layout — port of design_system/.../templates/AuthLayout ── */
+.ds-auth-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  background: linear-gradient(135deg, var(--color-bg) 0%, #1a1a2e 50%, var(--color-bg) 100%);
+  font-family: var(--font-base);
+  color: var(--color-text);
+}
+.ds-auth-layout__card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+.ds-auth-layout__header {
+  padding: 2rem 2rem 0;
+  text-align: center;
+}
+.ds-auth-layout__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+.ds-auth-layout__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.ds-auth-layout__subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.ds-auth-layout__body { padding: 2rem; }
+.ds-auth-layout__footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--color-surface-alt);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+.btn--block { display: block; width: 100%; text-align: center; }

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title><%= tg_app_name %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<%= form_authenticity_token %>">
+    <%= stylesheet_link_tag "design_system/tokens", "design_system/admin", media: "all" %>
+    <%= javascript_include_tag "application", defer: true %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>
