@@ -1,7 +1,6 @@
 # Claude Code session-local artifacts (not the config — that's committed)
 .claude/.cache/
 .claude/.session/
-HANDOFF.md
 
 # Common
 .DS_Store
