@@ -566,7 +566,7 @@ HEAD design_system — `4a804fb` от **2026-03-29**. За последние 30
 | `views/shared/_ds_table.html.erb` | **остаётся** — им пользуется генератор |
 | `app/assets/stylesheets/design_system/{tokens,admin}.css` | **остаются** — они дают `.btn` вьюхам генератора |
 | `slim-rails` в `Gemfile` | **остаётся** до E (см. ниже — это одна строка, не работа) |
-| `tma/snippets/login_footer.html.erb` | **удаляется вместе с `append_to_file`** — заменяется флагом в пропсах логина. Осиротевший снippet не поймает ни один grep, а список NEVER в `CLAUDE.md` прикрывает `tma_resource/templates/`, но не `snippets/` |
+| `tma/snippets/login_footer.html.erb` | **удаляется вместе с `append_to_file`** — заменяется флагом в пропсах логина. Осиротевший сниппет не поймает ни один grep, а список NEVER в `CLAUDE.md` прикрывает `tma_resource/templates/`, но не `snippets/` |
 
 Проверено grep'ом, а не на глаз: вьюхи генератора не рендерят ни `shared/flash`, ни
 `shared/sidebar` — обе строки «удаляются» безопасны.
