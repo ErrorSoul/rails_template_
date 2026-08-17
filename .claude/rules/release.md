@@ -7,6 +7,10 @@ Branching, merging, pushing — anything that changes shared history. Enforced b
 - Never commit directly on `main` or `master`. The git-guard hook blocks this (except for the very first commit in a fresh repo).
 - If the user asks for a change while you're on main/master → first create a feature branch, then commit.
 
+## Commit messages
+- **Без `Co-Authored-By`.** Никаких трейлеров с соавторством — ни Claude, ни любых других.
+  Автор коммита один: пользователь. Зафиксировано 2026-08-17.
+
 ## Committing on a feature branch — не спрашивать (зафиксировано 2026-08-17)
 - **Коммить в feature-ветку столько раз, сколько нужно, и не спрашивать разрешения.**
   Часто — хорошо: мелкий коммит на каждый законченный кусок лучше одного большого в конце.
