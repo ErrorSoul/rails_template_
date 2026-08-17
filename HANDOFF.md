@@ -66,9 +66,12 @@ b9812f6  fix: non-interactive scaffold + rubocop to zero offenses (step 1.5)
 1d73adb  v1: TG Mini App scaffolder (baseline)
 ```
 
-`HANDOFF.md` числится в `.gitignore` (наследие «session-local artifacts»). Вопрос убрать ли
-строку задан пользователю трижды, **ответа не было** — файл живёт только на диске и в GitHub
-не уехал.
+`HANDOFF.md` **убран из `.gitignore` 2026-08-16** и отслеживается — ритуал §6 начинается с его
+чтения и из свежего клона был неисполним. Вопрос задавался четырежды без ответа, решение
+принято; откат — одна строка.
+
+**Коммиты в feature-ветку и push в неё разрешения не требуют** (`69d9bb6`,
+`.claude/rules/release.md`). Мерж в `main`/`master` — только по явной просьбе пользователя.
 
 **Remote подключён 2026-08-15:** `git@github.com:ErrorSoul/rails_template_.git`. Обе ветки
 запушены по отдельности. Внимание: у `origin/master` (старый шаблон 2021 года, ветки
