@@ -6,7 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <%= stylesheet_link_tag "design_system/tokens", "design_system/admin", media: "all" %>
-    <%= javascript_include_tag "application", defer: true %>
+    <%# Именно importmap-тег, а не javascript_include_tag: app/javascript/application.js —
+        ESM-модуль (`import "@hotwired/turbo-rails"`). Классическим тегом он падает с
+        SyntaxError, и тогда Turbo со Stimulus не загружаются вовсе: каждый переход
+        превращается в полную перезагрузку, а data-turbo-confirm на удалении молчит.
+        В application.html.erb этот тег дописывает importmap:install, сюда — не дописывает. %>
+    <%= javascript_importmap_tags %>
     <%= vite_client_tag %>
     <%= vite_react_refresh_tag %>
     <%= vite_javascript_tag "admin.tsx" %>

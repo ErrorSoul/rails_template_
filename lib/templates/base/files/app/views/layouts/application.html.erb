@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <%= stylesheet_link_tag "design_system/tokens", "design_system/admin", media: "all" %>
-    <%= javascript_include_tag "application", defer: true %>
+    <%# JS сюда дописывает importmap:install — свой importmap-тег перед закрытием head.
+        Своего javascript_include_tag здесь быть не должно: он грузит ESM-модуль как
+        классический скрипт и роняет его SyntaxError'ом ещё до старта Turbo. %>
   </head>
   <body>
     <%= yield %>

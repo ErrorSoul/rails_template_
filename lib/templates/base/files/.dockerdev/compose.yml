@@ -26,6 +26,12 @@ x-app: &app
     # Побеждает всё, что пришло из ../.env: там DATABASE_URL указывает на localhost,
     # внутри docker-сети база доступна только как postgres:5432.
     DATABASE_URL: postgres://postgres:postgres@postgres:5432
+    # Предохранитель database_cleaner считает удалённым любой DATABASE_URL, кроме
+    # localhost/127.0.0.1, и роняет весь набор на before(:suite). Строкой выше хост —
+    # это имя compose-сервиса, то есть база внутри той же docker-сети, а не чужой сервер.
+    # Выставлено здесь, а не в rails_helper: вне докера DATABASE_URL не задан, и там
+    # предохранитель должен остаться рабочим.
+    DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
     # Чтобы psql / pg_dump работали без флагов и без промпта пароля.
     PGHOST: postgres
     PGUSER: postgres
